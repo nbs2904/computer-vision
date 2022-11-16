@@ -4,8 +4,8 @@ repos:
     hooks:
       - id: poetry-check
         always_run: true
-      - id: poetry-lock
-        stages: [commit]
+      # - id: poetry-lock
+      #   stages: [commit]
       - id: poetry-export
         args: ["-f", "requirements.txt", "-o", "requirements.txt"]
         stages: [commit]
