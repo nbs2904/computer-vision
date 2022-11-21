@@ -1,0 +1,86 @@
+# Metadata
+site_name: Spurerkennung
+repo_url: https://github.com/nbs2904/computer-vision
+repo_name: computer-vision
+site_description: Spurerkennung Digitale Bildverarbeitung DHBW Stuttgart Informatik
+site_author: Nick Schroeder, Stephan auf der Landwehr, and Fabian Thome
+watch: ["src", "docs", "mkdocs.yml", "pyproject.toml", "README.md"]
+
+# Navigation
+nav:
+  - Overview:
+      - Readme: index.md
+      - License: license.md
+  - Documentation:
+      - Hello_World: hello_world.md
+
+
+# Plugins
+plugins:
+  - search
+  - autorefs
+  - git-revision-date
+  - mkdocstrings:
+      handlers: 
+        python:
+          paths: [src]
+          options:
+          #   filters: ["!^__"]
+            docstring_style: numpy
+          #   docstring_section_style: table
+          #   merge_init_into_class: true
+          #   show_root_heading: no
+          #   show_root_toc_entry: no
+            show_source: False
+          #   show_root_full_path: no
+
+# Theme
+theme:
+  name: material
+  palette:
+    # Light Theme
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: yellow
+      toggle:
+        icon: material/weather-night 
+        name: Switch to dark mode
+    # Dark Theme
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: yellow
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+
+  features:
+    # Enable the tabs on the top of the page (the level 1 folder will be displayed as a tab)
+    # - navigation.tabs
+
+    # Will expand the navigation tree on the sidebar
+    - navigation.expand
+
+    # TODO: Add description
+    - navigation.tracking
+
+    # Adds a button to get back to the top of the page
+    - navigation.top
+
+    # Shows files and navigation items on the left side
+    - toc.integrate
+
+    # TODO: Add description
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.magiclink
+  - pymdownx.snippets:
+      check_paths: true
+
+
