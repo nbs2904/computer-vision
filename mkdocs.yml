@@ -1,5 +1,5 @@
 # Metadata
-site_name: Spurerkennung
+site_name: Digitale Bildverarbeitung - Spurerkennung
 repo_url: https://github.com/nbs2904/computer-vision
 repo_name: computer-vision
 site_description: Spurerkennung Digitale Bildverarbeitung DHBW Stuttgart Informatik
@@ -12,38 +12,47 @@ nav:
       - Readme: index.md
       - License: license.md
   - Documentation:
-      - Hello_World: hello_world.md
-
+      hello_world: hello_world.md
+      Extraction:
+        - Lines: extraction/extraction.md
+      Segmentation:
+        - Mask: segmentation/segmentation.md
 
 # Plugins
 plugins:
   - search
   - autorefs
   - git-revision-date
+  - git-committers:
+      repository: nbs2904/computer-vision
+      branch: master
   - mkdocstrings:
-      handlers: 
+      handlers:
         python:
           paths: [src]
           options:
-          #   filters: ["!^__"]
+            #   filters: ["!^__"]
             docstring_style: numpy
-          #   docstring_section_style: table
-          #   merge_init_into_class: true
-          #   show_root_heading: no
-          #   show_root_toc_entry: no
+            #   docstring_section_style: table
+            #   merge_init_into_class: true
+            #   show_root_heading: no
+            #   show_root_toc_entry: no
             show_source: False
           #   show_root_full_path: no
 
 # Theme
 theme:
   name: material
+  icon:
+    logo: fontawesome/solid/lines-leaning
+    repo: fontawesome/brands/github
   palette:
     # Light Theme
     - media: "(prefers-color-scheme: light)"
       scheme: default
       primary: yellow
       toggle:
-        icon: material/weather-night 
+        icon: material/weather-night
         name: Switch to dark mode
     # Dark Theme
     - media: "(prefers-color-scheme: dark)"
@@ -52,7 +61,6 @@ theme:
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
-
 
   features:
     # Enable the tabs on the top of the page (the level 1 folder will be displayed as a tab)
@@ -76,11 +84,19 @@ theme:
     - content.tabs.link
 
 markdown_extensions:
+  - attr_list
+  - def_list
   - admonition
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.magiclink
   - pymdownx.snippets:
       check_paths: true
-
-
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
