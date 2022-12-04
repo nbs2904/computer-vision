@@ -13,8 +13,8 @@ nav:
       - License: license.md
   - Documentation:
       hello_world: hello_world.md
-      Extraction:
-        - Lines: extraction/extraction.md
+      Detection:
+        - Lines: detection/detection.md
       Segmentation:
         - Mask: segmentation/segmentation.md
 
