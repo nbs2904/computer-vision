@@ -5,12 +5,8 @@ import numpy as np  # Import the NumPy scientific computing library
 # import edge_detection as edges  # Handles the detection of lane lines
 from src.detection import edges
 
-# Author: Addison Sears-Collins
-# https://automaticaddison.com
-# Description: Implementation of the Lane class
-
 # filename = "original_lane_detection_5.jpg"
-filename = "data/img/Udacity/image004.jpg"
+filename = "data/img/KITTI/image013.jpg"
 
 
 class Lane:
@@ -44,29 +40,32 @@ class Lane:
 
         # Four corners of the trapezoid-shaped region of interest
         # You need to find these corners manually.
-        self.roi_points = np.float32(
-            [
-                (274, 184),  # Top-left corner
-                (0, 337),  # Bottom-left corner
-                (575, 337),  # Bottom-right corner
-                (371, 184),  # Top-right corner
-            ]
-        )
 
+        # ? Udacity Images
+        # self.roi_points = np.float32(
+        #     [
+        #         (self.width * (2 / 5), self.height * (3 / 5)),  # Top-left corner
+        #         (0, (self.height - 1) * (9 / 10)),  # Bottom-left corner
+        #         (self.width - 1, (self.height - 1) * (9 / 10)),  # Bottom-right corner
+        #         (self.width * (3 / 5), self.height * (3 / 5)),  # Top-right corner
+        #     ]
+        # )
+
+        # ? KITTI Images
         self.roi_points = np.float32(
             [
-                (self.width * (2 / 5), self.height * (3 / 5)),  # Top-left corner
-                (0, (self.height - 1) * (9 / 10)),  # Bottom-left corner
-                (self.width - 1, (self.height - 1) * (9 / 10)),  # Bottom-right corner
-                (self.width * (3 / 5), self.height * (3 / 5)),  # Top-right corner
+                (self.width * (1 / 4), self.height * (1 / 2)),  # Top-left corner
+                (0, self.height - 1),  # Bottom-left corner
+                ((self.width - 1), self.height - 1),  # Bottom-right corner
+                (self.width * (3 / 4), self.height * (1 / 2)),  # Top-right corner
             ]
         )
 
         # The desired corner locations  of the region of interest
         # after we perform perspective transformation.
         # Assume image width of 600, padding == 150.
-        self.padding = int(0.25 * width)  # padding from side of the image in pixels
-        # self.padding = int(0.0 * width)  # padding from side of the image in pixels
+        # self.padding = int(0.25 * width)  # padding from side of the image in pixels
+        self.padding = int(0.0 * width)  # padding from side of the image in pixels
         self.desired_roi_points = np.float32(
             [
                 [self.padding, 0],  # Top-left corner
@@ -175,7 +174,8 @@ class Lane:
             frame = self.warped_frame
 
         # Generate the histogram
-        self.histogram = np.sum(frame[int(frame.shape[0] / 2) :, :], axis=0)
+        # self.histogram = np.sum(frame[int(frame.shape[0] / 2) :, :], axis=0)
+        self.histogram = np.sum(frame[int(frame.shape[0] * (9 / 10)) :, :], axis=0)
 
         if plot == True:
 
