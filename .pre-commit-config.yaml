@@ -17,13 +17,13 @@ repos:
         name: Lint code (black)
         verbose: true
 
-  - repo: local
-    hooks:
-      - id: pytest
-        name: Run tests (pytest)
-        entry: poetry run pytest
-        language: system
-        types: [python]
-        always_run: true
-        pass_filenames: false
-        verbose: true
+  # - repo: local
+  #   hooks:
+  #     - id: pytest
+  #       name: Run tests (pytest)
+  #       entry: poetry run pytest
+  #       language: system
+  #       types: [python]
+  #       always_run: true
+  #       pass_filenames: false
+  #       verbose: true

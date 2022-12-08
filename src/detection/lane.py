@@ -6,7 +6,8 @@ import numpy as np  # Import the NumPy scientific computing library
 from src.detection import edges
 
 # filename = "original_lane_detection_5.jpg"
-filename = "data/img/KITTI/image013.jpg"
+# filename = "data/img/KITTI/image013.jpg"
+filename = "data/img/Udacity/image001.jpg"
 
 
 class Lane:
@@ -14,11 +15,15 @@ class Lane:
     Represents a lane on a road.
     """
 
+    # TODO add class summary in doctsring
+    # TODO add types
     def __init__(self, orig_frame):
-        """
-          Default constructor
+        """_summary_
 
-        :param orig_frame: Original camera image (i.e. frame)
+        Parameters
+        ----------
+        orig_frame : _type_
+            Image / Frame where lines should be detected in.
         """
         self.orig_frame = orig_frame
 
@@ -42,24 +47,24 @@ class Lane:
         # You need to find these corners manually.
 
         # ? Udacity Images
-        # self.roi_points = np.float32(
-        #     [
-        #         (self.width * (2 / 5), self.height * (3 / 5)),  # Top-left corner
-        #         (0, (self.height - 1) * (9 / 10)),  # Bottom-left corner
-        #         (self.width - 1, (self.height - 1) * (9 / 10)),  # Bottom-right corner
-        #         (self.width * (3 / 5), self.height * (3 / 5)),  # Top-right corner
-        #     ]
-        # )
-
-        # ? KITTI Images
         self.roi_points = np.float32(
             [
-                (self.width * (1 / 4), self.height * (1 / 2)),  # Top-left corner
-                (0, self.height - 1),  # Bottom-left corner
-                ((self.width - 1), self.height - 1),  # Bottom-right corner
-                (self.width * (3 / 4), self.height * (1 / 2)),  # Top-right corner
+                (self.width * (2 / 5), self.height * (3 / 5)),  # Top-left corner
+                (0, (self.height - 1) * (9 / 10)),  # Bottom-left corner
+                (self.width - 1, (self.height - 1) * (9 / 10)),  # Bottom-right corner
+                (self.width * (3 / 5), self.height * (3 / 5)),  # Top-right corner
             ]
         )
+
+        # ? KITTI Images
+        # self.roi_points = np.float32(
+        #     [
+        #         (self.width * (1 / 4), self.height * (1 / 2)),  # Top-left corner
+        #         (0, self.height - 1),  # Bottom-left corner
+        #         ((self.width - 1), self.height - 1),  # Bottom-right corner
+        #         (self.width * (3 / 4), self.height * (1 / 2)),  # Top-right corner
+        #     ]
+        # )
 
         # The desired corner locations  of the region of interest
         # after we perform perspective transformation.
@@ -105,6 +110,9 @@ class Lane:
         self.right_curvem = None
         self.center_offset = None
 
+    # TODO decide whether to keep function or not
+    # TODO if so update docstring
+    # TODO add types
     def calculate_car_position(self, print_to_terminal=False):
         """
         Calculate the position of the car relative to the center
@@ -112,6 +120,7 @@ class Lane:
         :param: print_to_terminal Display data to console if True
         :return: Offset from the center of the lane
         """
+
         # Assume the camera is centered in the image.
         # Get position of car in centimeters
         car_location = self.orig_frame.shape[1] / 2
@@ -131,13 +140,30 @@ class Lane:
 
         return center_offset
 
+    # TODO remove calculation to metres
+    # TODO add types
+    # TODO update docstrings (method return type)
     def calculate_curvature(self, print_to_terminal=False):
-        """
-        Calculate the road curvature in meters.
+        """Calculates curvature of lane depending on recongnised lane poylnom in image
 
-        :param: print_to_terminal Display data to console if True
-        :return: Radii of curvature
+        Parameters
+        ----------
+        print_to_terminal : bool, optional
+            Whether or not result should be printed to terminal, by default False
+
+        Returns
+        -------
+        _type_
+            _description_
         """
+
+        # """
+        # Calculate the road curvature in meters.
+
+        # :param: print_to_terminal Display data to console if True
+        # :return: Radii of curvature
+        # """
+
         # Set the y-value where we want to calculate the road curvature.
         # Select the maximum y-value, which is the bottom of the frame.
         y_eval = np.max(self.ploty)
@@ -163,13 +189,25 @@ class Lane:
 
         return left_curvem, right_curvem
 
+    # TODO remove frame parameter
+    # TODO update docstring
+    # TODO add types
     def calculate_histogram(self, frame=None, plot=True):
-        """
-        Calculate the image histogram to find peaks in white pixel count
+        """Get histogram of pixel columns of provided frame or `self.warped_frame` to detect white lane peaks in frame.
 
-        :param frame: The warped image
-        :param plot: Create a plot if True
+        Parameters
+        ----------
+        frame : _type_, optional
+            Transformed image based on `self.roi_points`, by default None
+        plot : bool, optional
+            Whether or not to plot transformed image with histogram, by default True
+
+        Returns
+        -------
+        _type_
+            _description_
         """
+
         if frame is None:
             frame = self.warped_frame
 
@@ -190,6 +228,9 @@ class Lane:
 
         return self.histogram
 
+    # TODO determine whether or not to keep method
+    # TODO add types
+    # TODO update docstring
     def display_curvature_offset(self, frame=None, plot=False):
         """
         Display curvature and offset statistics on the image
@@ -229,14 +270,22 @@ class Lane:
 
         return image_copy
 
+    # ? Why are left_fit and right_fit recalculated?
+    # TODO add types
+    # TODO update docstring
     def get_lane_line_previous_window(self, left_fit, right_fit, plot=False):
+        """In order to fill the lane, the calculated parameteres of the polynomial functions for the left and right lines are used.
+
+        Parameters
+        ----------
+        left_fit : _type_
+            Polynomial function of the left line
+        right_fit : _type_
+            Polynomial function of the right line
+        plot : bool, optional
+            Whether or not to plot the image, by default False
         """
-        Use the lane line from the previous sliding window to get the parameters
-        for the polynomial line for filling in the lane line
-        :param: left_fit Polynomial function of the left lane line
-        :param: right_fit Polynomial function of the right lane line
-        :param: plot To display an image or not
-        """
+
         # margin is a sliding window parameter
         margin = self.margin
 
@@ -319,14 +368,26 @@ class Lane:
             ax3.set_title("Warped Frame With Search Window")
             plt.show()
 
+    # TODO think about spliting the function into multiple
+    # ? function for calculatign sliding windows
+    # ? function for fitting polynomial functions
+    # ? function for plotting sliding windows
+    # TODO add types
+    # TODO update docstring
     def get_lane_line_indices_sliding_windows(self, plot=False):
-        """
-        Get the indices of the lane line pixels using the
-        sliding windows technique.
+        """Approximates lane polynom using sliding windows for the left and right lines
 
-        :param: plot Show plot or not
-        :return: Best fit lines for the left and right lines of the current lane
+        Parameters
+        ----------
+        plot : bool, optional
+            Whether or not to plot the image, by default False
+
+        Returns
+        -------
+        _type_
+            Polynomial parameters for fitted left and right lines.
         """
+
         # Sliding window width is +/- margin
         margin = self.margin
 
@@ -443,13 +504,24 @@ class Lane:
 
         return self.left_fit, self.right_fit
 
+    # TODO think about removing parameters
+    # TODO rename method
+    # TODO update docstring
+    # TODO add types
     def get_line_markings(self, frame=None):
-        """
-        Isolates lane lines.
+        """Isolates lane lines
 
-          :param frame: The camera frame that contains the lanes we want to detect
-        :return: Binary (i.e. black and white) image containing the lane lines.
+        Parameters
+        ----------
+        frame : _type_, optional
+            Image lane should be extracted from, by default None
+
+        Returns
+        -------
+        _type_
+            Binary image only containing lane lines.
         """
+
         if frame is None:
             frame = self.orig_frame
 
@@ -500,16 +572,37 @@ class Lane:
         ### Combine the possible lane lines with the possible lane line edges #####
         # If you show rs_binary visually, you'll see that it is not that different
         # from this return value. The edges of lane lines are thin lines of pixels.
-        self.lane_line_markings = cv2.bitwise_or(rs_binary, sxbinary.astype(np.uint8))
+        self.lane_line_markings = cv2.bitwise_or(rs_binary, sxbinary.astype(np.uint8) * 255)
+        # self.lane_line_markings = cv2.bitwise_and(rs_binary, sxbinary.astype(np.uint8))
+
+        # cv2.imshow("s_binary", s_binary)
+        # cv2.imshow("r_thresh", r_thresh)
+        cv2.imshow("rs_binary", rs_binary)
+        cv2.imshow("sxbinary normal", sxbinary)
+        cv2.imshow("sxbinary to uint8", sxbinary.astype(np.uint8) * 255)
+        cv2.imshow("lane_line_markings", self.lane_line_markings)
+
+        print(np.unique(sxbinary.astype(np.uint8)))
+        print(np.unique(sxbinary))
+        print(rs_binary.dtype)
+        print(np.unique(rs_binary))
+
+        # cv2.imshow("bitwise_and", cv2.bitwise_and(rs_binary, sxbinary.astype(np.uint8)))
+        # cv2.imshow("bitwise_or", cv2.bitwise_or(rs_binary, sxbinary.astype(np.uint8)))
+
         return self.lane_line_markings
 
+    # TODO add types
+    # TODO update docstring
     def histogram_peak(self):
-        """
-        Get the left and right peak of the histogram
+        """Gets maxima of calculated histogram to detect position of left and right lines in image.
 
-        Return the x coordinate of the left histogram peak and the right histogram
-        peak.
+        Returns
+        -------
+        _type_
+            x-coordinates of histogram peak for left and right line.
         """
+
         midpoint = np.int(self.histogram.shape[0] / 2)
         leftx_base = np.argmax(self.histogram[:midpoint])
         rightx_base = np.argmax(self.histogram[midpoint:]) + midpoint
@@ -517,11 +610,20 @@ class Lane:
         # (x coordinate of left peak, x coordinate of right peak)
         return leftx_base, rightx_base
 
+    # TODO add types
+    # TODO update docstring
     def overlay_lane_lines(self, plot=False):
-        """
-        Overlay lane lines on the original frame
-        :param: Plot the lane lines if True
-        :return: Lane with overlay
+        """Draw detected lines on the original image and store image.
+
+        Parameters
+        ----------
+        plot : bool, optional
+            Whether or not to plot the image with overlay, by default False
+
+        Returns
+        -------
+        _type_
+            Image with lane overlay
         """
         # Generate an image to draw the lane lines on
         warp_zero = np.zeros_like(self.warped_frame).astype(np.uint8)
@@ -558,12 +660,23 @@ class Lane:
 
         return result
 
+    # TODO think about removing frame parameter
+    # TODO add types
+    # TODO update docstring
     def perspective_transform(self, frame=None, plot=False):
-        """
-        Perform the perspective transform.
-        :param: frame Current frame
-        :param: plot Plot the warped image if True
-        :return: Bird's eye view of the current lane
+        """Transform perspective of original image
+
+        Parameters
+        ----------
+        frame : _type_, optional
+            Image that should be transformed, by default None
+        plot : bool, optional
+            Whether or not to plot transformed image, by default False
+
+        Returns
+        -------
+        _type_
+            Returns image transformed to bird's eye view.
         """
         if frame is None:
             frame = self.lane_line_markings
@@ -600,11 +713,18 @@ class Lane:
 
         return self.warped_frame
 
+    # TODO think about removing frame parameter
+    # TODO add types
+    # TODO update docstring
     def plot_roi(self, frame=None, plot=False):
-        """
-        Plot the region of interest on an image.
-        :param: frame The current image frame
-        :param: plot Plot the roi image if True
+        """Plot region of interest trapze on given image
+
+        Parameters
+        ----------
+        frame : _type_, optional
+            _description_, by default None
+        plot : bool, optional
+            Whether or not to plot image with region of interest trapeze, by default False
         """
         if plot == False:
             return

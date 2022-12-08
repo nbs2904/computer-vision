@@ -1,10 +1,6 @@
 import cv2  # Import the OpenCV library to enable computer vision
 import numpy as np  # Import the NumPy scientific computing library
 
-# Author: Addison Sears-Collins
-# https://automaticaddison.com
-# Description: A collection of methods to detect help with edge detection
-
 
 def binary_array(array, thresh, value=0):
     """
@@ -37,6 +33,33 @@ def binary_array(array, thresh, value=0):
     binary[(array >= thresh[0]) & (array <= thresh[1])] = value
 
     return binary
+
+
+def binary_threshold(image, thresh, inverse=False):
+    """Masks given 2D Image and returns binary image image
+
+    Parameters
+    ----------
+    image : _type_
+        Image to mask
+    thresh : _type_
+        Threshold image is masked with (inclusive)
+    inverse : bool, optional
+        Whether or not binary masking is inverse or not, by default True
+
+    Returns
+    -------
+    _type_
+        Masked binary image
+    """
+    if inverse:
+        binary_image = np.ones_like(image)
+        binary_image[(image >= thresh[0]) & (image <= thresh[1])] = 0
+    else:
+        binary_image = np.zeros_like(image)
+        binary_image[(image >= thresh[0]) & (image <= thresh[1])] = 1
+
+    return binary_image
 
 
 def blur_gaussian(channel, ksize=3):
@@ -73,8 +96,11 @@ def mag_thresh(image, sobel_kernel=3, thresh=(0, 255)):
     # from top to bottom x number of pixels from left to right
     mag = np.sqrt(sobelx**2 + sobely**2)
 
+    # mag = cv2.Canny(image, threshold1=100, threshold2=200)
+
     # Return a 2D array that contains 0s and 1s
-    return binary_array(mag, thresh)
+    # return binary_array(mag, thresh)
+    return binary_threshold(mag, thresh)
 
 
 def sobel(img_channel, orient="x", sobel_kernel=3):
