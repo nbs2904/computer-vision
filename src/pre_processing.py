@@ -11,7 +11,7 @@ from src.detection import edges
 # TODO rename method
 # TODO update docstring
 # TODO add types
-def highlight_lines(image: NDArray[np.uint8], gaussian_ksize=3, apply_edge_detection=True):
+def highlight_lines(image: NDArray[np.uint8], gaussian_ksize=3, apply_edge_detection=True, plot: bool = False):
     """Isolates lane lines
 
     Parameters
@@ -76,6 +76,11 @@ def highlight_lines(image: NDArray[np.uint8], gaussian_ksize=3, apply_edge_detec
     # ? just for testing
     highlighted_image = red_saturation_binary
     # ? ----------------
+    if plot:
+        cv2.imshow("light_channel_binary", light_channel_binary)
+        cv2.imshow("saturation_channel_binary", saturation_channel_binary)
+        cv2.imshow("red_channel_binary", red_channel_binary)
+        cv2.imshow("red_saturation_binary", red_saturation_binary)
 
     if apply_edge_detection:
         # 1s will be in the cells with the highest Sobel derivative values
@@ -92,26 +97,25 @@ def highlight_lines(image: NDArray[np.uint8], gaussian_ksize=3, apply_edge_detec
 
         # cv2.imshow("s_binary", s_binary)
         # cv2.imshow("r_thresh", r_thresh)
-        cv2.imshow("light_channel_binary", light_channel_binary)
-        cv2.imshow("saturation_channel_binary", saturation_channel_binary)
-        cv2.imshow("red_channel_binary", red_channel_binary)
-        cv2.imshow("red_saturation_binary", red_saturation_binary)
-        cv2.imshow("light_channel_canny", light_channel_canny)
-        cv2.imshow("highlighted_image", highlighted_image)
 
-        print(np.unique(light_channel_canny.astype(np.uint8)))
-        print(np.unique(light_channel_canny))
-        print(red_saturation_binary.dtype)
-        print(np.unique(red_saturation_binary))
+        if plot:
+            cv2.imshow("light_channel_canny", light_channel_canny)
+            cv2.imshow("highlighted_image", highlighted_image)
 
-    # cv2.imshow("bitwise_and", cv2.bitwise_and(rs_binary, sxbinary.astype(np.uint8)))
-    # cv2.imshow("bitwise_or", cv2.bitwise_or(rs_binary, sxbinary.astype(np.uint8)))
+            print(np.unique(light_channel_canny.astype(np.uint8)))
+            print(np.unique(light_channel_canny))
+            print(red_saturation_binary.dtype)
+            print(np.unique(red_saturation_binary))
 
-    while 1:
-        if cv2.waitKey(0):
-            break
+        # cv2.imshow("bitwise_and", cv2.bitwise_and(rs_binary, sxbinary.astype(np.uint8)))
+        # cv2.imshow("bitwise_or", cv2.bitwise_or(rs_binary, sxbinary.astype(np.uint8)))
 
-    cv2.destroyAllWindows()
+    if plot:
+        while 1:
+            if cv2.waitKey(0):
+                break
+
+        cv2.destroyAllWindows()
 
     return highlighted_image
 
@@ -120,7 +124,10 @@ def highlight_lines(image: NDArray[np.uint8], gaussian_ksize=3, apply_edge_detec
 # TODO add types
 # TODO update docstring
 def perspective_transform(
-    image: NDArray[np.uint8], roi_trapeze: NDArray[np.int32], destination_format: NDArray[np.int32], plot: bool = False
+    image: NDArray[np.uint8],
+    roi_trapeze: NDArray[np.float32],
+    destination_format: NDArray[np.float32],
+    plot: bool = False,
 ) -> tuple[NDArray[np.uint8], NDArray[np.uint32]]:
     """Transform perspective of original image
 
@@ -137,7 +144,7 @@ def perspective_transform(
         Returns image transformed to bird's eye view.
     """
 
-    image_width, image_height = image.shape[::-1][1:]
+    image_height, image_width = image.shape
 
     # Calculate the transformation matrix
     transformation_matrix: NDArray[np.uint32] = cv2.getPerspectiveTransform(roi_trapeze, destination_format)

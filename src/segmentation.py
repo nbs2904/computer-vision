@@ -7,7 +7,7 @@ from numpy.typing import NDArray
 # TODO update docstring
 
 
-def get_roi(image: NDArray[np.uint8], is_udacity: bool = True, plot: bool = False) -> NDArray[np.int32]:
+def get_roi(image: NDArray[np.uint8], is_udacity: bool = True, plot: bool = False) -> NDArray[np.float32]:
     """Get Region of interest for the provided image
 
     Parameters
@@ -27,7 +27,7 @@ def get_roi(image: NDArray[np.uint8], is_udacity: bool = True, plot: bool = Fals
                 (width - 1, (height - 1) * (9 / 10)),  # Bottom-right corner
                 (width * (3 / 5), height * (3 / 5)),  # Top-right corner
             ],
-            dtype=np.int32,
+            dtype=np.float32,
         )
     else:
         roi_trapeze = np.array(
@@ -37,7 +37,7 @@ def get_roi(image: NDArray[np.uint8], is_udacity: bool = True, plot: bool = Fals
                 ((width - 1), height - 1),  # Bottom-right corner
                 (width * (3 / 4), height * (1 / 2)),  # Top-right corner
             ],
-            dtype=np.int32,
+            dtype=np.float32,
         )
 
     if plot is not False:

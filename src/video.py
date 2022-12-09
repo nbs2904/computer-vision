@@ -21,23 +21,26 @@ def display_video() -> None:
         # print(start)
         ret, image = video.read()
 
-        # highlighted_image = highlight_lines(image, apply_edge_detection=False)
+        highlighted_image = highlight_lines(image, apply_edge_detection=False)
 
-        # padding = 0
-        # width = highlighted_image.shape[1]
-        # height = highlighted_image.shape[0]
-        # desired_roi_points = np.float32(
-        #     [
-        #         [padding, 0],  # Top-left corner
-        #         [padding, height - 1],  # Bottom-left corner
-        #         [width - padding, height - 1],  # Bottom-right corner
-        #         [width - padding, 0],  # Top-right corner
-        #     ]
-        # )
+        padding = 0
+        width = highlighted_image.shape[1]
+        height = highlighted_image.shape[0]
+        desired_roi_points = np.array(
+            [
+                [padding, 0],  # Top-left corner
+                [padding, height],  # Bottom-left corner
+                [width - padding, height],  # Bottom-right corner
+                [width - padding, 0],  # Top-right corner
+            ],
+            np.float32,
+        )
 
-        # transformed_image = perspective_transform(highlighted_image, get_roi(highlighted_image), desired_roi_points)
+        transformed_image, inverse_matrix = perspective_transform(
+            highlighted_image, get_roi(highlighted_image), desired_roi_points
+        )
 
-        cv2.imshow("ca1", image)
+        cv2.imshow("ca1", transformed_image)
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
@@ -53,6 +56,3 @@ def display_video() -> None:
 
     video.release()
     cv2.destroyAllWindows()
-
-
-display_video()
