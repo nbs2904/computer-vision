@@ -1,4 +1,5 @@
 import sys
+from time import sleep
 from time import time as timer
 
 import cv2
@@ -28,52 +29,50 @@ def display_video() -> None:
     cv2.namedWindow("ca1", 0)
     while video.isOpened():
 
-        start = timer()
-        # print(start)
         ret, image = video.read()
 
-        highlighted_image = highlight_lines(image, apply_edge_detection=False)
+        try:
+            highlighted_image = highlight_lines(image, apply_edge_detection=False)
 
-        padding = 0
-        width = highlighted_image.shape[1]
-        height = highlighted_image.shape[0]
-        desired_roi_points = np.array(
-            [
-                [padding, 0],  # Top-left corner
-                [padding, height],  # Bottom-left corner
-                [width - padding, height],  # Bottom-right corner
-                [width - padding, 0],  # Top-right corner
-            ],
-            np.float32,
-        )
+            padding = 0
+            width = highlighted_image.shape[1]
+            height = highlighted_image.shape[0]
+            desired_roi_points = np.array(
+                [
+                    [padding, 0],  # Top-left corner
+                    [padding, height],  # Bottom-left corner
+                    [width - padding, height],  # Bottom-right corner
+                    [width - padding, 0],  # Top-right corner
+                ],
+                np.float32,
+            )
 
-        roi, roi_image = get_roi(highlighted_image)
+            roi, roi_image = get_roi(highlighted_image)
 
-        transformed_image, inverse_matrix = perspective_transform(highlighted_image, roi, desired_roi_points)
+            transformed_image, inverse_matrix = perspective_transform(highlighted_image, roi, desired_roi_points)
 
-        histogram = calculate_histogram(transformed_image, 10, plot=False)
+            histogram = calculate_histogram(transformed_image, 10, plot=False)
 
-        left_fit, right_fit, plot_image = get_lane_line_indices_sliding_windows(
-            transformed_image, histogram, 10, plot=False
-        )
+            left_fit, right_fit, plot_image = get_lane_line_indices_sliding_windows(
+                transformed_image, histogram, 10, plot=False
+            )
 
-        left_fit, right_fit = reshape_lane_based_on_proximity(transformed_image, left_fit, right_fit, plot=False)
+            left_fit, right_fit = reshape_lane_based_on_proximity(transformed_image, left_fit, right_fit, plot=False)
 
-        output_image = overlay_lane_lines(image, transformed_image, left_fit, right_fit, inverse_matrix)
+            output_image = overlay_lane_lines(image, transformed_image, left_fit, right_fit, inverse_matrix)
 
-        cv2.imshow("ca1", output_image)
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            break
+            cv2.imshow("ca1", roi_image)
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
 
-        diff = timer() - start
-        while diff < fps:
-            diff = timer() - start
-
-        elapsed += 1
-        if elapsed % 5 == 0:
-            sys.stdout.write("\r")
-            sys.stdout.write("{0:3.3f} FPS".format(elapsed / (timer() - framerate)))
-            sys.stdout.flush()
+            elapsed += 1
+            if elapsed % 5 == 0:
+                sys.stdout.write("\r")
+                sys.stdout.write("{0:3.3f} FPS".format(elapsed / (timer() - framerate)))
+                sys.stdout.flush()
+        except Exception:
+            cv2.imwrite("./data/failing_frame.png", image)
+            # sleep(60)
 
     video.release()
     cv2.destroyAllWindows()

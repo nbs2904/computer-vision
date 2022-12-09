@@ -33,6 +33,7 @@ def histogram_peak(histogram: NDArray[np.uint32]) -> tuple[int, int]:
 # ? function for plotting sliding windows
 # TODO add types
 # TODO update docstring
+# TODO only calculate for one side
 def get_lane_line_indices_sliding_windows(
     param_image: NDArray[np.uint8], histogram: NDArray[np.uint32], window_amount: int, plot: bool = False
 ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.uint8]]:
@@ -167,6 +168,7 @@ def get_lane_line_indices_sliding_windows(
 # ? Why are left_fit and right_fit recalculated?
 # TODO add types
 # TODO update docstring
+# TODO only calculate for one side
 def reshape_lane_based_on_proximity(
     image: NDArray[np.uint8], left_fit: NDArray[np.float64], right_fit: NDArray[np.float64], plot: bool = False
 ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
