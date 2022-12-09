@@ -35,7 +35,7 @@ def histogram_peak(histogram: NDArray[np.uint32]) -> tuple[int, int]:
 # TODO update docstring
 def get_lane_line_indices_sliding_windows(
     param_image: NDArray[np.uint8], histogram: NDArray[np.uint32], window_amount: int, plot: bool = False
-) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+) -> tuple[NDArray[np.float64] | None, NDArray[np.float64] | None, NDArray[np.uint8]]:
     """Approximates lane polynom using sliding windows for the left and right lines
 
     Parameters
@@ -82,12 +82,15 @@ def get_lane_line_indices_sliding_windows(
     for window in range(window_amount):
 
         # Identify window boundaries in x and y (and right and left)
-        x_min_left = left_current_x - (window_width / 2)
-        x_max_left = left_current_x + (window_width / 2)
-        x_min_right = right_current_x - (window_width / 2)
-        x_max_right = right_current_x + (window_width / 2)
-        y_min = height - (window + 1) * window_height
-        y_max = height - window * window_height
+        x_min_left = int(left_current_x - (window_width / 2))
+        x_max_left = int(left_current_x + (window_width / 2))
+        x_min_right = int(right_current_x - (window_width / 2))
+        x_max_right = int(right_current_x + (window_width / 2))
+        y_min = int(height - (window + 1) * window_height)
+        y_max = int(height - window * window_height)
+
+        print(x_min_right)
+        print(x_max_right)
 
         cv2.rectangle(image, (x_min_left, y_min), (x_max_left, y_max), (255, 255, 255), 2)
         cv2.rectangle(image, (x_min_right, y_min), (x_max_right, y_max), (255, 255, 255), 2)
@@ -128,24 +131,29 @@ def get_lane_line_indices_sliding_windows(
     rightx = white_pixel_x[right_x_in_any_window]
     righty = white_pixel_y[right_x_in_any_window]
 
-    # Fit a second order polynomial curve to the pixel coordinates for
-    # the left and right lane lines
-    left_fit = np.polyfit(lefty, leftx, 2)
-    right_fit = np.polyfit(righty, rightx, 2)
+    print(leftx)
+    print(lefty)
+    print(rightx)
+    print(righty)
+
+    # # Fit a second order polynomial curve to the pixel coordinates for
+    # # the left and right lane lines
+    # left_fit = np.polyfit(lefty, leftx, 2)
+    # right_fit = np.polyfit(righty, rightx, 2)
+
+    # # Create the x and y values to plot on the image
+    # ploty = np.linspace(0, image.shape[0] - 1, image.shape[0])
+    # left_fitx = left_fit[0] * ploty**2 + left_fit[1] * ploty + left_fit[2]
+    # right_fitx = right_fit[0] * ploty**2 + right_fit[1] * ploty + right_fit[2]
+
+    # Generate an image to visualize the result
+    out_img = np.dstack((image, image, (image))) * 255
+
+    # Add color to the left line pixels and right line pixels
+    out_img[white_pixel_y[left_x_in_any_window], white_pixel_x[left_x_in_any_window]] = [255, 0, 0]
+    out_img[white_pixel_y[right_x_in_any_window], white_pixel_x[right_x_in_any_window]] = [0, 0, 255]
 
     if plot:
-
-        # Create the x and y values to plot on the image
-        ploty = np.linspace(0, image.shape[0] - 1, image.shape[0])
-        left_fitx = left_fit[0] * ploty**2 + left_fit[1] * ploty + left_fit[2]
-        right_fitx = right_fit[0] * ploty**2 + right_fit[1] * ploty + right_fit[2]
-
-        # Generate an image to visualize the result
-        out_img = np.dstack((image, image, (image))) * 255
-
-        # Add color to the left line pixels and right line pixels
-        out_img[white_pixel_y[left_x_in_any_window], white_pixel_x[left_x_in_any_window]] = [255, 0, 0]
-        out_img[white_pixel_y[right_x_in_any_window], white_pixel_x[right_x_in_any_window]] = [0, 0, 255]
 
         # Plot the figure with the sliding windows
         figure, (ax1, ax2) = plt.subplots(2, 1)  # 3 rows, 1 column
@@ -153,13 +161,14 @@ def get_lane_line_indices_sliding_windows(
         figure.tight_layout(pad=3.0)
         ax1.imshow(image, cmap="gray")
         ax2.imshow(out_img)
-        ax2.plot(left_fitx, ploty, color="yellow")
-        ax2.plot(right_fitx, ploty, color="yellow")
+        # ax2.plot(left_fitx, ploty, color="yellow")
+        # ax2.plot(right_fitx, ploty, color="yellow")
         ax1.set_title("Warped Frame with Sliding Windows")
         ax2.set_title("Detected Lane Lines with Sliding Windows")
         plt.show()
 
-    return left_fit, right_fit
+    # return left_fit, right_fit, out_img.astype(np.uint8)
+    return None, None, out_img.astype(np.uint8)
 
 
 # ? Why are left_fit and right_fit recalculated?
@@ -212,7 +221,7 @@ def reshape_lane_based_on_proximity(
     right_fit = np.polyfit(righty, rightx, 2)
 
     # Create the x and y values to plot on the image
-    ploty = np.linspace(0, image[0] - 1, image[0])
+    ploty = np.linspace(0, image.shape[0] - 1, image.shape[0])
     left_fitx = left_fit[0] * ploty**2 + left_fit[1] * ploty + left_fit[2]
     right_fitx = right_fit[0] * ploty**2 + right_fit[1] * ploty + right_fit[2]
 

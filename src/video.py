@@ -4,11 +4,19 @@ from time import time as timer
 import cv2
 import numpy as np
 
-from src.pre_processing import highlight_lines, perspective_transform
+from src.detection import get_lane_line_indices_sliding_windows
+from src.pre_processing import (
+    calculate_histogram,
+    highlight_lines,
+    perspective_transform,
+)
 from src.segmentation import get_roi
 
 
 def display_video() -> None:
+
+    print("Started displaying video")
+
     video = cv2.VideoCapture("./data/img/Udacity/project_video.mp4")
     fps = video.get(cv2.CAP_PROP_FPS)
     fps /= 1000
@@ -40,7 +48,11 @@ def display_video() -> None:
             highlighted_image, get_roi(highlighted_image), desired_roi_points
         )
 
-        cv2.imshow("ca1", transformed_image)
+        lane_fit, right_fit, plot_image = get_lane_line_indices_sliding_windows(
+            transformed_image, calculate_histogram(transformed_image, 10), 10, plot=True
+        )
+
+        cv2.imshow("ca1", plot_image)
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
@@ -56,3 +68,6 @@ def display_video() -> None:
 
     video.release()
     cv2.destroyAllWindows()
+
+
+display_video()

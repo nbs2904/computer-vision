@@ -4,14 +4,16 @@ import numpy as np
 from numpy.typing import NDArray
 
 # TODO think about sorting out some of those methodss
-from src.detection import edges
+from src.template import edges
 
 
 # TODO think about removing parameters
 # TODO rename method
 # TODO update docstring
 # TODO add types
-def highlight_lines(image: NDArray[np.uint8], gaussian_ksize=3, apply_edge_detection=True, plot: bool = False):
+def highlight_lines(
+    image: NDArray[np.uint8], gaussian_ksize: int = 3, apply_edge_detection: bool = True, plot: bool = False
+) -> NDArray[np.uint8]:
     """Isolates lane lines
 
     Parameters
@@ -175,7 +177,7 @@ def perspective_transform(
 
         # Display the image
         while 1:
-            cv2.imshow("Warped Image", transformed_image_plot)
+            cv2.imshow("Transformed Image", transformed_image_plot)
 
             # Press any key to stop
             if cv2.waitKey(0):
@@ -189,7 +191,7 @@ def perspective_transform(
 # TODO remove frame parameter
 # TODO update docstring
 # TODO add types
-def calculate_histogram(image: NDArray[np.uint8], sliding_window_count: int, plot: bool = True) -> NDArray[np.uint32]:
+def calculate_histogram(image: NDArray[np.uint8], sliding_window_count: int, plot: bool = False) -> NDArray[np.uint32]:
     """Get histogram of pixel columns of provided frame or `self.warped_frame` to detect white lane peaks in frame.
 
     Parameters
@@ -207,7 +209,7 @@ def calculate_histogram(image: NDArray[np.uint8], sliding_window_count: int, plo
 
     # Generate the histogram
     # self.histogram = np.sum(frame[int(frame.shape[0] / 2) :, :], axis=0)
-    # TODO check whether or not sum should be divided by 2555 since image is type uint8
+    # TODO check whether or not sum should be divided by 255 since image is type uint8
     # ! use just most bottom part of image depending on size of sliding windows
     histogram: NDArray[np.uint32] = np.sum(
         image[int(image.shape[0] * ((sliding_window_count - 1) / sliding_window_count)) :, :], axis=0
@@ -219,9 +221,9 @@ def calculate_histogram(image: NDArray[np.uint8], sliding_window_count: int, plo
         figure, (ax1, ax2) = plt.subplots(2, 1)  # 2 row, 1 columns
         figure.set_size_inches(10, 5)
         ax1.imshow(image, cmap="gray")
-        ax1.set_title("Warped Binary Frame")
+        ax1.set_title("Transformed Binary Image")
         ax2.plot(histogram)
-        ax2.set_title("Histogram Peaks")
+        ax2.set_title("X column Histogram")
         plt.show()
 
     return histogram

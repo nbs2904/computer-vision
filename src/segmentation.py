@@ -1,4 +1,5 @@
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
 
@@ -59,7 +60,14 @@ def get_roi(image: NDArray[np.uint8], is_udacity: bool = True, plot: bool = Fals
 
 # TODO add types
 # TODO update docstring
-def overlay_lane_lines(transformed_image: NDArray[np.uint8], plot=False):
+def overlay_lane_lines(
+    original_image: NDArray[np.uint8],
+    transformed_image: NDArray[np.uint8],
+    left_fit_x_indices: NDArray[np.uint32],
+    right_fit_x_indices: NDArray[np.uint32],
+    inverse_transformation_matrix: NDArray[np.uint32],
+    plot: bool = False,
+) -> NDArray[np.uint8]:
     """Draw detected lines on the original image and store image.
 
     Parameters
@@ -74,36 +82,51 @@ def overlay_lane_lines(transformed_image: NDArray[np.uint8], plot=False):
     """
     # Generate an image to draw the lane lines on
     # TODO: is ".astype(np.unit8)" needed?
-    warp_zero = np.zeros_like(transformed_image).astype(np.uint8)
-    color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
+    # ! warp_zero = np.zeros_like(transformed_image).astype(np.uint8)
+    # ! color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
+
+    # TODO double check if `transformed_image_y_indices` (=`ploty`) works as expected
+    transformed_image_y_indices: NDArray[np.uint32] = np.linspace(
+        0, transformed_image.shape[0] - 1, transformed_image.shape[0]
+    ).astype(np.uint32)
+
+    transformed_image_black: NDArray[np.uint8] = np.zeros_like(transformed_image)
+    lines_color_image: NDArray[np.uint8] = np.dstack(
+        (transformed_image_black, transformed_image_black, transformed_image_black)
+    )
 
     # Recast the x and y points into usable format for cv2.fillPoly()
-    pts_left = np.array([np.transpose(np.vstack([self.left_fitx, self.ploty]))])
-    pts_right = np.array([np.flipud(np.transpose(np.vstack([self.right_fitx, self.ploty])))])
-    pts = np.hstack((pts_left, pts_right))
+    # TODO what format is ploty?
+    pts_left = np.array([np.transpose(np.vstack([left_fit_x_indices, transformed_image_y_indices]))])
+    pts_right = np.array([np.flipud(np.transpose(np.vstack([right_fit_x_indices, transformed_image_y_indices])))])
+    pts: NDArray[np.uint32] = np.hstack((pts_left, pts_right)).astype(np.uint32)
 
     # Draw lane on the warped blank image
-    cv2.fillPoly(color_warp, np.int_([pts]), (0, 255, 0))
+    # ! check how to solve type error
+    # cv2.fillPoly(lines_color_image, np.int_([pts]), (0, 255, 0))
+    cv2.fillPoly(lines_color_image, [pts], (0, 255, 0))
 
     # Warp the blank back to original image space using inverse perspective
     # matrix (Minv)
-    newwarp = cv2.warpPerspective(
-        color_warp, self.inv_transformation_matrix, (self.orig_frame.shape[1], self.orig_frame.shape[0])
+    inverse_transformed_lines_color_image = cv2.warpPerspective(
+        lines_color_image, inverse_transformation_matrix, (original_image.shape[1], original_image.shape[0])
     )
 
     # Combine the result with the original image
-    result = cv2.addWeighted(self.orig_frame, 1, newwarp, 0.3, 0)
+    combined_original_and_lines: NDArray[np.uint8] = cv2.addWeighted(
+        original_image, 1, inverse_transformed_lines_color_image, 0.3, 0
+    )
 
-    if plot == True:
+    if plot is True:
 
         # Plot the figures
         figure, (ax1, ax2) = plt.subplots(2, 1)  # 2 rows, 1 column
         figure.set_size_inches(10, 10)
         figure.tight_layout(pad=3.0)
-        ax1.imshow(cv2.cvtColor(self.orig_frame, cv2.COLOR_BGR2RGB))
-        ax2.imshow(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
-        ax1.set_title("Original Frame")
-        ax2.set_title("Original Frame With Lane Overlay")
+        ax1.imshow(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
+        ax2.imshow(cv2.cvtColor(combined_original_and_lines, cv2.COLOR_BGR2RGB))
+        ax1.set_title("Original Image")
+        ax2.set_title("Original Image With Lines")
         plt.show()
 
-    return result
+    return combined_original_and_lines
