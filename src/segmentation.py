@@ -23,10 +23,10 @@ def get_roi(image: NDArray[np.uint8], is_udacity: bool = True, plot: bool = Fals
     if is_udacity:
         roi_trapeze = np.array(
             [
-                (width * (2 / 5), height * (3 / 5)),  # Top-left corner
+                (width * (2 / 5), height * (13 / 20)),  # Top-left corner
                 (0.0, (height - 1) * (9 / 10)),  # Bottom-left corner
                 (width - 1, (height - 1) * (9 / 10)),  # Bottom-right corner
-                (width * (3 / 5), height * (3 / 5)),  # Top-right corner
+                (width * (3 / 5), height * (13 / 20)),  # Top-right corner
             ],
             dtype=np.float32,
         )
@@ -63,8 +63,8 @@ def get_roi(image: NDArray[np.uint8], is_udacity: bool = True, plot: bool = Fals
 def overlay_lane_lines(
     original_image: NDArray[np.uint8],
     transformed_image: NDArray[np.uint8],
-    left_fit_x_indices: NDArray[np.uint32],
-    right_fit_x_indices: NDArray[np.uint32],
+    left_fit_x_indices: NDArray[np.float64],
+    right_fit_x_indices: NDArray[np.float64],
     inverse_transformation_matrix: NDArray[np.uint32],
     plot: bool = False,
 ) -> NDArray[np.uint8]:
@@ -86,9 +86,9 @@ def overlay_lane_lines(
     # ! color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
 
     # TODO double check if `transformed_image_y_indices` (=`ploty`) works as expected
-    transformed_image_y_indices: NDArray[np.uint32] = np.linspace(
+    transformed_image_y_indices: NDArray[np.float64] = np.linspace(
         0, transformed_image.shape[0] - 1, transformed_image.shape[0]
-    ).astype(np.uint32)
+    ).astype(np.float64)
 
     transformed_image_black: NDArray[np.uint8] = np.zeros_like(transformed_image)
     lines_color_image: NDArray[np.uint8] = np.dstack(
@@ -99,12 +99,12 @@ def overlay_lane_lines(
     # TODO what format is ploty?
     pts_left = np.array([np.transpose(np.vstack([left_fit_x_indices, transformed_image_y_indices]))])
     pts_right = np.array([np.flipud(np.transpose(np.vstack([right_fit_x_indices, transformed_image_y_indices])))])
-    pts: NDArray[np.uint32] = np.hstack((pts_left, pts_right)).astype(np.uint32)
+    pts: NDArray[np.float64] = np.hstack((pts_left, pts_right)).astype(np.float64)
 
     # Draw lane on the warped blank image
     # ! check how to solve type error
     # cv2.fillPoly(lines_color_image, np.int_([pts]), (0, 255, 0))
-    cv2.fillPoly(lines_color_image, [pts], (0, 255, 0))
+    cv2.fillPoly(lines_color_image, [pts.astype(np.int32)], (0, 255, 0))
 
     # Warp the blank back to original image space using inverse perspective
     # matrix (Minv)

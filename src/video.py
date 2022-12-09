@@ -4,13 +4,16 @@ from time import time as timer
 import cv2
 import numpy as np
 
-from src.detection import get_lane_line_indices_sliding_windows
+from src.detection import (
+    get_lane_line_indices_sliding_windows,
+    reshape_lane_based_on_proximity,
+)
 from src.pre_processing import (
     calculate_histogram,
     highlight_lines,
     perspective_transform,
 )
-from src.segmentation import get_roi
+from src.segmentation import get_roi, overlay_lane_lines
 
 
 def display_video() -> None:
@@ -50,11 +53,15 @@ def display_video() -> None:
 
         histogram = calculate_histogram(transformed_image, 10, plot=False)
 
-        lane_fit, right_fit, plot_image = get_lane_line_indices_sliding_windows(
-            transformed_image, histogram, 10, plot=True
+        left_fit, right_fit, plot_image = get_lane_line_indices_sliding_windows(
+            transformed_image, histogram, 10, plot=False
         )
 
-        cv2.imshow("ca1", plot_image)
+        left_fit, right_fit = reshape_lane_based_on_proximity(transformed_image, left_fit, right_fit, plot=False)
+
+        output_image = overlay_lane_lines(image, transformed_image, left_fit, right_fit, inverse_matrix)
+
+        cv2.imshow("ca1", output_image)
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
