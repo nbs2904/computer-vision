@@ -8,7 +8,9 @@ from numpy.typing import NDArray
 # TODO update docstring
 
 
-def get_roi(image: NDArray[np.uint8], is_udacity: bool = True, plot: bool = False) -> NDArray[np.float32]:
+def get_roi(
+    image: NDArray[np.uint8], is_udacity: bool = True, plot: bool = False
+) -> tuple[NDArray[np.float32], NDArray[np.uint8]]:
     """Get Region of interest for the provided image
 
     Parameters
@@ -41,13 +43,15 @@ def get_roi(image: NDArray[np.uint8], is_udacity: bool = True, plot: bool = Fals
             dtype=np.float32,
         )
 
+    roi_image = image.copy()
+    roi_image = cv2.polylines(roi_image, [roi_trapeze.astype(np.int32)], True, (147, 20, 255), 3)
+
     if plot is not False:
         # Overlay trapezoid on the frame
-        this_image = cv2.polylines(image, [roi_trapeze], True, (147, 20, 255), 3)
 
         # Display the image
         while 1:
-            cv2.imshow("ROI Image", this_image)
+            cv2.imshow("ROI Image", roi_image)
 
             # Press any key to stop
             if cv2.waitKey(0):
@@ -55,7 +59,7 @@ def get_roi(image: NDArray[np.uint8], is_udacity: bool = True, plot: bool = Fals
 
         cv2.destroyAllWindows()
 
-    return roi_trapeze
+    return roi_trapeze, roi_image.astype(np.uint8)
 
 
 # TODO add types
@@ -99,12 +103,12 @@ def overlay_lane_lines(
     # TODO what format is ploty?
     pts_left = np.array([np.transpose(np.vstack([left_fit_x_indices, transformed_image_y_indices]))])
     pts_right = np.array([np.flipud(np.transpose(np.vstack([right_fit_x_indices, transformed_image_y_indices])))])
-    pts: NDArray[np.float64] = np.hstack((pts_left, pts_right)).astype(np.float64)
+    pts: NDArray[np.int32] = np.hstack((pts_left, pts_right)).astype(np.int32)
 
     # Draw lane on the warped blank image
     # ! check how to solve type error
     # cv2.fillPoly(lines_color_image, np.int_([pts]), (0, 255, 0))
-    cv2.fillPoly(lines_color_image, [pts.astype(np.int32)], (0, 255, 0))
+    cv2.fillPoly(lines_color_image, [pts], (0, 255, 0))
 
     # Warp the blank back to original image space using inverse perspective
     # matrix (Minv)

@@ -47,9 +47,9 @@ def display_video() -> None:
             np.float32,
         )
 
-        transformed_image, inverse_matrix = perspective_transform(
-            highlighted_image, get_roi(highlighted_image), desired_roi_points
-        )
+        roi, roi_image = get_roi(highlighted_image)
+
+        transformed_image, inverse_matrix = perspective_transform(highlighted_image, roi, desired_roi_points)
 
         histogram = calculate_histogram(transformed_image, 10, plot=False)
 
