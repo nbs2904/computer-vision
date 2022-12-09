@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt  # Used for plotting and error checking
 import numpy as np  # Import the NumPy scientific computing library
 
 # import edge_detection as edges  # Handles the detection of lane lines
-from src.detection import edges
+from src.template import edges
 
 # filename = "original_lane_detection_5.jpg"
 # filename = "data/img/KITTI/image013.jpg"

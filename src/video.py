@@ -48,8 +48,10 @@ def display_video() -> None:
             highlighted_image, get_roi(highlighted_image), desired_roi_points
         )
 
+        histogram = calculate_histogram(transformed_image, 10, plot=False)
+
         lane_fit, right_fit, plot_image = get_lane_line_indices_sliding_windows(
-            transformed_image, calculate_histogram(transformed_image, 10), 10, plot=True
+            transformed_image, histogram, 10, plot=True
         )
 
         cv2.imshow("ca1", plot_image)

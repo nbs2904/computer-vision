@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
 
-# TODO think about sorting out some of those methodss
+# TODO think about sorting out some of those methods
 from src.template import edges
 
 
@@ -211,8 +211,10 @@ def calculate_histogram(image: NDArray[np.uint8], sliding_window_count: int, plo
     # self.histogram = np.sum(frame[int(frame.shape[0] / 2) :, :], axis=0)
     # TODO check whether or not sum should be divided by 255 since image is type uint8
     # ! use just most bottom part of image depending on size of sliding windows
+
+    # TODO changed calculation for histogram
     histogram: NDArray[np.uint32] = np.sum(
-        image[int(image.shape[0] * ((sliding_window_count - 1) / sliding_window_count)) :, :], axis=0
+        image[int(image.shape[0] * ((sliding_window_count - 3) / sliding_window_count)) :, :], axis=0
     )
 
     if plot is True:
