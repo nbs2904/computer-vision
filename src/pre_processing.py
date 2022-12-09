@@ -78,11 +78,6 @@ def highlight_lines(
     # ? just for testing
     highlighted_image = red_saturation_binary
     # ? ----------------
-    if plot:
-        cv2.imshow("light_channel_binary", light_channel_binary)
-        cv2.imshow("saturation_channel_binary", saturation_channel_binary)
-        cv2.imshow("red_channel_binary", red_channel_binary)
-        cv2.imshow("red_saturation_binary", red_saturation_binary)
 
     if apply_edge_detection:
         # 1s will be in the cells with the highest Sobel derivative values
@@ -100,19 +95,46 @@ def highlight_lines(
         # cv2.imshow("s_binary", s_binary)
         # cv2.imshow("r_thresh", r_thresh)
 
-        if plot:
-            cv2.imshow("light_channel_canny", light_channel_canny)
-            cv2.imshow("highlighted_image", highlighted_image)
-
-            print(np.unique(light_channel_canny.astype(np.uint8)))
-            print(np.unique(light_channel_canny))
-            print(red_saturation_binary.dtype)
-            print(np.unique(red_saturation_binary))
-
         # cv2.imshow("bitwise_and", cv2.bitwise_and(rs_binary, sxbinary.astype(np.uint8)))
         # cv2.imshow("bitwise_or", cv2.bitwise_or(rs_binary, sxbinary.astype(np.uint8)))
 
     if plot:
+        figure = plt.figure(figsize=(10, 10))
+        plot_count_x = 3 if apply_edge_detection else 2
+        plot_count_y = 3
+
+        orignial_image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        orignal_image_plot = figure.add_subplot(plot_count_y, plot_count_x, 1)
+        orignal_image_plot.set_title("Orignal Image")
+        orignal_image_plot.imshow(orignial_image_rgb)
+
+        light_channel_binary_plot = figure.add_subplot(plot_count_y, plot_count_x, 2)
+        light_channel_binary_plot.set_title("Light Channel Binary Blurred")
+        light_channel_binary_plot.imshow(light_channel_binary_blurred, cmap="gray")
+
+        saturation_channel_binary_plot = figure.add_subplot(plot_count_y, plot_count_x, 3)
+        saturation_channel_binary_plot.set_title("Saturation Channel Binary")
+        saturation_channel_binary_plot.imshow(saturation_channel_binary, cmap="gray")
+
+        red_channel_binary_plot = figure.add_subplot(plot_count_y, plot_count_x, 4)
+        red_channel_binary_plot.set_title("Red Channel Binary")
+        red_channel_binary_plot.imshow(red_channel_binary, cmap="gray")
+
+        red_and_saturation_binary_plot = figure.add_subplot(plot_count_y, plot_count_x, 5)
+        red_and_saturation_binary_plot.set_title("Red and Saturation")
+        red_and_saturation_binary_plot.imshow(red_saturation_binary, cmap="gray")
+
+        if apply_edge_detection:
+            light_channel_canny_plot = figure.add_subplot(plot_count_y, plot_count_x, 6)
+            light_channel_canny_plot.set_title("Light Channel Canny")
+            light_channel_canny_plot.imshow(light_channel_canny, cmap="gray")
+
+            canny_or_red_saturation_plot = figure.add_subplot(plot_count_y, plot_count_x, 7)
+            canny_or_red_saturation_plot.set_title("Canny or Red Saturation")
+            canny_or_red_saturation_plot.imshow(highlighted_image, cmap="gray")
+
+        plt.show()
+
         while 1:
             if cv2.waitKey(0):
                 break
