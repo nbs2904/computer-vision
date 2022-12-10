@@ -19,23 +19,44 @@ def histogram_peak(histogram: NDArray[np.uint32], min_x: int, max_x: int) -> int
         x-coordinates of histogram peak for left and right line.
     """
     # TODO: add padding to middle
-    max = int(np.argmax(histogram[min_x:max_x]))
+    peak_x = int(np.argmax(histogram[min_x:max_x]))
 
     # (x coordinate of left peak, x coordinate of right peak)
-    return max + min_x
+    return peak_x + min_x
+
+
+# if left_last_fit is None:
+#     fit_window()
+# else:
+#     get_proximity_values()
+#     if proximity_pixel_count < threshold:
+#         fit_window()
+
+# get_proximity_values()
+# proximity_fit()
 
 
 def get_fit(
-    image: NDArray[np.uint8],
+    param_image: NDArray[np.uint8],
     last_left_fit: NDArray[np.float64] | None,
     last_right_fit: NDArray[np.float64] | None,
+    last_left_fit_indices: NDArray[np.float64] | None,
+    last_right_fit_indices: NDArray[np.float64] | None,
 ) -> tuple[
     NDArray[np.float64] | None, NDArray[np.float64] | None, NDArray[np.float64] | None, NDArray[np.float64] | None
 ]:
 
+    image = param_image.copy()
+
+    backup_left_fit = last_left_fit
+    backup_right_fit = last_right_fit
+
     width = image.shape[1]
 
     window_amount = 10
+
+    # TODO possibly adjust value
+    proximity = int((1 / 24) * width)
 
     # Find the x and y coordinates of all the nonzero
     # (i.e. white) pixels in the frame.
@@ -45,35 +66,107 @@ def get_fit(
 
     histogram = calculate_histogram(image, window_amount)
 
-    left_lane_inds = None
+    proximity_pixel_count_threshold = 400
+
+    left_lane_indices = None
     right_lane_indices = None
 
-    # TODO if not enough white pixel in proximity, set last_fit to None to calculate windows
+    # Get the left and right lane line pixel locations
+    # x_values = white_pixel_indices_x[lane_inds]
+    # y_values = white_pixel_indices_y[lane_inds]
+
+    new_left_fit = None
+    new_right_fit = None
+
     if last_left_fit is not None:
-        # Store left lane pixel indices
-        lane_inds = (
-            white_pixel_indices_x
-            > (
-                last_left_fit[0] * (white_pixel_indices_y**2)
-                + last_left_fit[1] * white_pixel_indices_y
-                + last_left_fit[2]
-                - proximity
+        left_lane_indices = (
+            (
+                white_pixel_indices_x
+                > (
+                    last_left_fit[0] * (white_pixel_indices_y**2)
+                    + last_left_fit[1] * white_pixel_indices_y
+                    + last_left_fit[2]
+                    - proximity
+                )
             )
-        ) & (
-            white_pixel_indices_x
-            < (
-                last_left_fit[0] * (white_pixel_indices_y**2)
-                + last_left_fit[1] * white_pixel_indices_y
-                + last_left_fit[2]
-                + proximity
+            & (
+                white_pixel_indices_x
+                < (
+                    last_left_fit[0] * (white_pixel_indices_y**2)
+                    + last_left_fit[1] * white_pixel_indices_y
+                    + last_left_fit[2]
+                    + proximity
+                )
             )
+            & (white_pixel_indices_x < width / 2)
         )
 
-        # Get the left and right lane line pixel locations
-        x_values = white_pixel_indices_x[lane_inds]
-        y_values = white_pixel_indices_y[lane_inds]
+        left_proximity_values_x = white_pixel_indices_x[left_lane_indices]
+        left_proximity_values_y = white_pixel_indices_y[left_lane_indices]
 
+        # print("left proximity count:", len(left_proximity_values_x))
+
+        if len(left_proximity_values_x) < proximity_pixel_count_threshold:
+            # if len(left_proximity_values_x[left_proximity_values_x > width / 2]) < proximity_pixel_count_threshold:
+            # last_left_fit = get_window_fit(
+            #     histogram,
+            #     historgram_min_x=0,
+            #     histogram_max_x=int(width / 2),
+            #     image=image,
+            #     white_pixel_indices_x=white_pixel_indices_x,
+            #     white_pixel_indices_y=white_pixel_indices_y,
+            #     window_amount=window_amount,
+            # )
+            last_left_fit = None
+
+    if last_right_fit is not None:
+        right_lane_indices = (
+            (
+                white_pixel_indices_x
+                > (
+                    last_right_fit[0] * (white_pixel_indices_y**2)
+                    + last_right_fit[1] * white_pixel_indices_y
+                    + last_right_fit[2]
+                    - proximity
+                )
+            )
+            & (
+                white_pixel_indices_x
+                < (
+                    last_right_fit[0] * (white_pixel_indices_y**2)
+                    + last_right_fit[1] * white_pixel_indices_y
+                    + last_right_fit[2]
+                    + proximity
+                )
+            )
+            & (white_pixel_indices_x > width / 2)
+        )
+
+        right_proximity_values_x = white_pixel_indices_x[right_lane_indices]
+        right_proximity_values_y = white_pixel_indices_y[right_lane_indices]
+
+        # print("right proximity count:", len(right_proximity_values_x))
+        # print(min(right_proximity_values_x), max(right_proximity_values_x))
+
+        if len(right_proximity_values_x) < proximity_pixel_count_threshold:
+            # if len(right_proximity_values_x[right_proximity_values_x > width / 2]) < proximity_pixel_count_threshold:
+            # last_right_fit = get_window_fit(
+            #     histogram,
+            #     historgram_min_x=int(width / 2),
+            #     histogram_max_x=width - 1,
+            #     image=image,
+            #     white_pixel_indices_x=white_pixel_indices_x,
+            #     white_pixel_indices_y=white_pixel_indices_y,
+            #     window_amount=window_amount,
+            # )
+
+            last_right_fit = None
+
+    # print(f"left_window: {last_left_fit is None}; right:window: {last_right_fit is None}")
+
+    calculate_left_window = False
     if last_left_fit is None:
+        calculate_left_window = True
         last_left_fit = get_window_fit(
             histogram,
             historgram_min_x=0,
@@ -84,7 +177,9 @@ def get_fit(
             window_amount=window_amount,
         )
 
+    calculate_right_window = False
     if last_right_fit is None:
+        calculate_right_window = True
         last_right_fit = get_window_fit(
             histogram,
             historgram_min_x=int(width / 2),
@@ -95,21 +190,88 @@ def get_fit(
             window_amount=window_amount,
         )
 
-    new_left_fit = None
-    new_right_fit = None
-
     # print("Calculate proximity")
 
+    new_left_fit_indices = None
+    new_right_fit_indices = None
+
+    # TODO if not enough white pixel in proximity, set last_fit to None to calculate windows
+    # if last_left_fit is not None:
+    # Store left lane pixel indices
     if last_left_fit is not None:
-        new_left_fit, new_left_fit_indices = get_proximity_fit(
-            image, last_left_fit, white_pixel_indices_x, white_pixel_indices_y
-        )
+        if calculate_left_window:
+            left_lane_indices = (
+                white_pixel_indices_x
+                > (
+                    last_left_fit[0] * (white_pixel_indices_y**2)
+                    + last_left_fit[1] * white_pixel_indices_y
+                    + last_left_fit[2]
+                    - proximity
+                )
+            ) & (
+                white_pixel_indices_x
+                < (
+                    last_left_fit[0] * (white_pixel_indices_y**2)
+                    + last_left_fit[1] * white_pixel_indices_y
+                    + last_left_fit[2]
+                    + proximity
+                )
+            )
+
+        left_proximity_values_x = white_pixel_indices_x[left_lane_indices]
+        left_proximity_values_y = white_pixel_indices_y[left_lane_indices]
+
+        new_left_fit, new_left_fit_indices = get_proximity_fit(image, left_proximity_values_x, left_proximity_values_y)
 
     # if last_right_fit is None, calculating windows failed
+    # if last_right_fit is not None:
+    # Store right lane pixel indices
     if last_right_fit is not None:
+        if calculate_right_window:
+            right_lane_indices = (
+                white_pixel_indices_x
+                > (
+                    last_right_fit[0] * (white_pixel_indices_y**2)
+                    + last_right_fit[1] * white_pixel_indices_y
+                    + last_right_fit[2]
+                    - proximity
+                )
+            ) & (
+                white_pixel_indices_x
+                < (
+                    last_right_fit[0] * (white_pixel_indices_y**2)
+                    + last_right_fit[1] * white_pixel_indices_y
+                    + last_right_fit[2]
+                    + proximity
+                )
+            )
+
+        right_proximity_values_x = white_pixel_indices_x[right_lane_indices]
+        right_proximity_values_y = white_pixel_indices_y[right_lane_indices]
+
         new_right_fit, new_right_fit_indices = get_proximity_fit(
-            image, last_right_fit, white_pixel_indices_x, white_pixel_indices_y
+            image, right_proximity_values_x, right_proximity_values_y
         )
+
+    # if all(elem is not None for elem in [backup_left_fit, new_left_fit, backup_right_fit, new_right_fit]):
+    #     print("left:", (backup_left_fit - new_left_fit).astype(int))
+    #     print("rigth:", (backup_right_fit - new_right_fit).astype(int))
+
+    if backup_left_fit is not None and (
+        new_left_fit is None
+        or abs(new_left_fit[1] - backup_left_fit[1]) > 4
+        or abs(new_left_fit[2] - backup_left_fit[2]) > 120
+    ):
+        new_left_fit = backup_left_fit
+        new_left_fit_indices = last_left_fit_indices
+
+    if backup_right_fit is not None and (
+        new_right_fit is None
+        or abs(new_right_fit[1] - backup_right_fit[1]) > 4
+        or abs(new_right_fit[2] - backup_right_fit[2]) > 120
+    ):
+        new_right_fit = backup_right_fit
+        new_right_fit_indices = last_right_fit_indices
 
     return new_left_fit, new_left_fit_indices, new_right_fit, new_right_fit_indices
 
@@ -134,7 +296,11 @@ def get_window_fit(
     window_width = int((1 / 6) * width)
     window_height = int(height / window_amount)
 
-    current_x = histogram_peak(histogram, historgram_min_x, histogram_max_x)
+    histrogram_padding = int(window_width / 8)
+    if historgram_min_x == 0:
+        current_x = histogram_peak(histogram, historgram_min_x, histogram_max_x - histrogram_padding)
+    else:
+        current_x = histogram_peak(histogram, historgram_min_x + histrogram_padding, histogram_max_x)
 
     ind_in_any_window = []
 
@@ -185,14 +351,12 @@ def get_window_fit(
 
 def get_proximity_fit(
     image: NDArray[np.uint8],
-    fit: NDArray[np.float64],
+    # fit: NDArray[np.float64],
     proximity_pixel_values_x: NDArray[np.intp],
     proximity_pixel_values_y: NDArray[np.intp],
 ) -> tuple[NDArray[np.float64], NDArray[np.float64]] | None:
 
-    width = image.shape[1]
-    # TODO possibly adjust value
-    proximity = int((1 / 12) * width)
+    # width = image.shape[1]
 
     # Store left and right lane pixel indices
     # lane_inds = (
@@ -270,6 +434,7 @@ def get_lane_line_indices_sliding_windows(
     # Current positions for pixel indices for each window,
     # which we will continue to update
     histogram = calculate_histogram(image, window_amount)
+
     current_x = histogram_peak(histogram, min_x, max_x)
 
     for window in range(window_amount):

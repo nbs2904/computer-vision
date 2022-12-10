@@ -97,10 +97,15 @@ def overlay_lane_lines(
         (transformed_image_black, transformed_image_black, transformed_image_black)
     )
 
+    width = original_image.shape[1]
+
     # Recast the x and y points into usable format for cv2.fillPoly()
     pts_left = np.array([np.transpose(np.vstack([left_fit_x_indices, transformed_image_y_indices]))])
     pts_right = np.array([np.flipud(np.transpose(np.vstack([right_fit_x_indices, transformed_image_y_indices])))])
+
     pts: NDArray[np.int32] = np.hstack((pts_left, pts_right)).astype(np.int32)
+    # pts_left: NDArray[np.int32] = np.hstack((pts_left_min, pts_left_max)).astype(np.int32)
+    # pts_right: NDArray[np.int32] = np.hstack((pts_right_min, pts_right_max)).astype(np.int32)
 
     # Draw lane on the warped blank image
     # ! check how to solve type error

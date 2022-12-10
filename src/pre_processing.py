@@ -3,16 +3,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
 
-# TODO think about sorting out some of those methods
-from src.template import edges
-
 
 # TODO think about removing parameters
 # TODO rename method
 # TODO update docstring
 # TODO add types
 def highlight_lines(
-    image: NDArray[np.uint8], gaussian_ksize: int = 3, apply_edge_detection: bool = True, plot: bool = False
+    image: NDArray[np.uint8],
+    roi: NDArray[np.float32],
+    gaussian_ksize: int = 3,
+    apply_edge_detection: bool = True,
+    plot: bool = False,
 ) -> NDArray[np.uint8]:
     """Isolates lane lines
 
@@ -31,7 +32,76 @@ def highlight_lines(
     # color space to HLS (hue, saturation, lightness).
     image_hls = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
 
+    height = image.shape[0]
+
     ################### Isolate possible lane line edges ######################
+
+    strip_num = 4
+    highlighted_strips: list[NDArray[np.uint8]] = []
+
+    for i in range(strip_num):
+        y_min = int(height * (i / strip_num))
+        y_max = int(height * ((i + 1) / strip_num))
+
+        cur_light_channel_strip = image_hls[y_min:y_max, :, 1]
+        cur_saturation_channel_strip = image_hls[y_min:y_max, :, 2]
+        cur_red_channel_strip = image[y_min:y_max, :, 2]
+
+        # mean
+        cur_light_channel_strip_mean = np.mean(cur_light_channel_strip)
+
+        # thresholding
+        _, light_channel_strip_binary = cv2.threshold(
+            cur_light_channel_strip, thresh=190, maxval=255, type=cv2.THRESH_BINARY
+        )
+
+        if 70 < cur_light_channel_strip_mean < 140:
+            _, saturation_channel_strip_binary = cv2.threshold(
+                cur_saturation_channel_strip, thresh=50, maxval=255, type=cv2.THRESH_BINARY
+            )
+            _, red_channel_strip_binary = cv2.threshold(
+                cur_red_channel_strip, thresh=160, maxval=255, type=cv2.THRESH_BINARY
+            )
+        elif cur_light_channel_strip_mean > 140:
+            _, saturation_channel_strip_binary = cv2.threshold(
+                cur_saturation_channel_strip, thresh=50, maxval=255, type=cv2.THRESH_BINARY
+            )
+            _, red_channel_strip_binary = cv2.threshold(
+                cur_red_channel_strip, thresh=180, maxval=255, type=cv2.THRESH_BINARY
+            )
+            _, light_channel_strip_binary = cv2.threshold(
+                cur_light_channel_strip, thresh=220, maxval=255, type=cv2.THRESH_BINARY
+            )
+
+        else:
+            _, saturation_channel_strip_binary = cv2.threshold(
+                cur_saturation_channel_strip, thresh=30, maxval=255, type=cv2.THRESH_BINARY_INV
+            )
+            _, red_channel_strip_binary = cv2.threshold(
+                cur_red_channel_strip, thresh=30, maxval=255, type=cv2.THRESH_BINARY
+            )
+
+        light_channel_strip_binary_blurred: NDArray[np.uint8] = cv2.GaussianBlur(
+            light_channel_strip_binary, ksize=(gaussian_ksize, gaussian_ksize), sigmaX=0
+        )
+        cv2.imshow("light_blurred", light_channel_strip_binary_blurred)
+        cv2.imshow("saturation", saturation_channel_strip_binary)
+
+        cv2.imshow("red", red_channel_strip_binary)
+
+        red_saturation_binary: NDArray[np.uint8] = cv2.bitwise_and(
+            saturation_channel_strip_binary, red_channel_strip_binary
+        )
+        highlighted_strip: NDArray[np.uint8] = cv2.bitwise_or(red_saturation_binary, light_channel_strip_binary_blurred)
+        highlighted_strips.append(highlighted_strip)
+
+    highlighted_image = np.concatenate(highlighted_strips, axis=0)
+
+    cv2.imshow("combined_strips", highlighted_image)
+
+    # light_channel_top_mean = np.mean(light_channel_top)
+    # light_channel_top_middle_mean = np.mean(light_channel_middle)
+    # light_channel_top_bottom_mean = np.mean(light_channel_bottom)
 
     # Perform Sobel edges detection on the L (lightness) channel of
     # the image to detect sharp discontinuities in the pixel intensities
@@ -41,11 +111,13 @@ def highlight_lines(
     # ! _, sxbinary = edges.threshold(hls[:, :, 1], thresh=(120, 255))
     # ! sxbinary = edges.blur_gaussian(sxbinary, ksize=3)  # Reduce noise
 
-    _, light_channel_binary = cv2.threshold(image_hls[:, :, 1], thresh=120, maxval=255, type=cv2.THRESH_BINARY)
-    light_channel_binary_blurred: NDArray[np.uint8] = cv2.GaussianBlur(
-        light_channel_binary, ksize=(gaussian_ksize, gaussian_ksize), sigmaX=0
-    )
+    # _, light_channel_binary = cv2.threshold(image_hls[:, :, 1], thresh=180, maxval=255, type=cv2.THRESH_BINARY)
+    # light_channel_binary_blurred: NDArray[np.uint8] = cv2.GaussianBlur(
+    #     light_channel_binary, ksize=(gaussian_ksize, gaussian_ksize), sigmaX=0
+    # )
     ######################## Isolate possible lane lines ######################
+
+    # cv2.imshow("light_channel", light_channel_binary_blurred)
 
     # Perform binary thresholding on the S (saturation) channel
     # of the video frame. A high saturation value means the hue color is pure.
@@ -57,7 +129,9 @@ def highlight_lines(
     # ! s_channel = image_hls[:, :, 2]  # use only the saturation channel data
     # ! _, s_binary = edges.threshold(s_channel, (80, 255))
 
-    _, saturation_channel_binary = cv2.threshold(image_hls[:, :, 2], thresh=80, maxval=255, type=cv2.THRESH_BINARY)
+    # _, saturation_channel_binary = cv2.threshold(image_hls[:, :, 2], thresh=50, maxval=255, type=cv2.THRESH_BINARY)
+
+    # cv2.imshow("sat_chan_bin", saturation_channel_binary)
 
     # Perform binary thresholding on the R (red) channel of the
     # original BGR video frame.
@@ -66,17 +140,21 @@ def highlight_lines(
     # Remember, pure white is bgr(255, 255, 255).
     # Pure yellow is bgr(0, 255, 255). Both have high red channel values.
     # ! _, r_thresh = edges.threshold(frame[:, :, 2], thresh=(120, 255))
-    _, red_channel_binary = cv2.threshold(image[:, :, 2], thresh=120, maxval=255, type=cv2.THRESH_BINARY)
+    # _, red_channel_binary = cv2.threshold(image[:, :, 2], thresh=160, maxval=255, type=cv2.THRESH_BINARY)
+
+    # cv2.imshow("red_chan_bin", red_channel_binary)
 
     # Lane lines should be pure in color and have high red channel values
     # Bitwise AND operation to reduce noise and black-out any pixels that
     # don't appear to be nice, pure, solid colors (like white or yellow lane
     # lines.)
     # ! rs_binary = cv2.bitwise_and(s_binary, r_thresh)
-    red_saturation_binary: NDArray[np.uint8] = cv2.bitwise_and(saturation_channel_binary, red_channel_binary)
+    # red_saturation_binary: NDArray[np.uint8] = cv2.bitwise_and(saturation_channel_binary, red_channel_binary)
+
+    # cv2.imshow("red_sat", red_saturation_binary)
 
     # ? just for testing
-    highlighted_image = red_saturation_binary
+    # highlighted_image: NDArray[np.uint8] = cv2.bitwise_or(red_saturation_binary, light_channel_binary)
     # ? ----------------
 
     if apply_edge_detection:
@@ -124,14 +202,14 @@ def highlight_lines(
         red_and_saturation_binary_plot.set_title("Red and Saturation")
         red_and_saturation_binary_plot.imshow(red_saturation_binary, cmap="gray")
 
+        red_saturation_lightness_plot = figure.add_subplot(plot_count_y, plot_count_x, 6)
+        red_saturation_lightness_plot.set_title("Red and Saturation or Lightness")
+        red_saturation_lightness_plot.imshow(highlighted_image, cmap="gray")
+
         if apply_edge_detection:
-            light_channel_canny_plot = figure.add_subplot(plot_count_y, plot_count_x, 6)
+            light_channel_canny_plot = figure.add_subplot(plot_count_y, plot_count_x, 7)
             light_channel_canny_plot.set_title("Light Channel Canny")
             light_channel_canny_plot.imshow(light_channel_canny, cmap="gray")
-
-            canny_or_red_saturation_plot = figure.add_subplot(plot_count_y, plot_count_x, 7)
-            canny_or_red_saturation_plot.set_title("Canny or Red Saturation")
-            canny_or_red_saturation_plot.imshow(highlighted_image, cmap="gray")
 
         plt.show()
 
@@ -157,8 +235,6 @@ def get_transformation_matrices(
     return transformation_matrix, inverse_transformation_matrix
 
 
-# TODO think about removing frame parameter
-# TODO add types
 # TODO update docstring
 def perspective_transform(
     image: NDArray[np.uint8],
@@ -181,11 +257,12 @@ def perspective_transform(
         Returns image transformed to bird's eye view.
     """
 
-    image_height, image_width = image.shape
+    destination_format_height = int(destination_format[1][1] - destination_format[0][1])
+    destination_format_width = int(destination_format[2][0] - destination_format[1][0])
 
     # Perform the transform using the transformation matrix
     transformed_image: NDArray[np.uint8] = cv2.warpPerspective(
-        image, transformation_matrix, (image_width, image_height), flags=(cv2.INTER_LINEAR)
+        image, transformation_matrix, (destination_format_width, destination_format_height), flags=(cv2.INTER_LINEAR)
     )
 
     # Sharpen image by thresholding
@@ -199,7 +276,11 @@ def perspective_transform(
     if plot is True:
         transformed_image_copy = transformed_image.copy()
         transformed_image_plot: NDArray[np.uint8] = cv2.polylines(
-            transformed_image_copy, pts=[destination_format], isClosed=True, color=(147, 20, 255), thickness=3
+            transformed_image_copy,
+            pts=[destination_format.astype(np.int32)],
+            isClosed=True,
+            color=(147, 20, 255),
+            thickness=3,
         )
 
         # Display the image
@@ -241,7 +322,10 @@ def calculate_histogram(image: NDArray[np.uint8], sliding_window_count: int, plo
 
     # TODO changed calculation for histogram
     histogram: NDArray[np.uint32] = np.sum(
-        image[int(image.shape[0] * ((sliding_window_count - 3) / sliding_window_count)) :, :], axis=0
+        # image[int(image.shape[0] * ((sliding_window_count - 3) / sliding_window_count)) :, :], axis=0
+        # image[int(image.shape[0]) :, :],
+        image,
+        axis=0,
     )
 
     if plot is True:
