@@ -144,15 +144,28 @@ def highlight_lines(
     return highlighted_image
 
 
+def get_transformation_matrices(
+    roi_trapeze: NDArray[np.float32], destination_format: NDArray[np.float32]
+) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+
+    # Calculate the transformation matrix
+    transformation_matrix: NDArray[np.float64] = cv2.getPerspectiveTransform(roi_trapeze, destination_format)
+
+    # Calculate the inverse transformation matrix
+    inverse_transformation_matrix: NDArray[np.float64] = cv2.getPerspectiveTransform(destination_format, roi_trapeze)
+
+    return transformation_matrix, inverse_transformation_matrix
+
+
 # TODO think about removing frame parameter
 # TODO add types
 # TODO update docstring
 def perspective_transform(
     image: NDArray[np.uint8],
-    roi_trapeze: NDArray[np.float32],
-    destination_format: NDArray[np.float32],
+    transformation_matrix: NDArray[np.float64],
+    destination_format: NDArray[np.int32],
     plot: bool = False,
-) -> tuple[NDArray[np.uint8], NDArray[np.uint32]]:
+) -> NDArray[np.uint8]:
     """Transform perspective of original image
 
     Parameters
@@ -170,26 +183,18 @@ def perspective_transform(
 
     image_height, image_width = image.shape
 
-    # Calculate the transformation matrix
-    transformation_matrix: NDArray[np.uint32] = cv2.getPerspectiveTransform(roi_trapeze, destination_format)
-
-    # Calculate the inverse transformation matrix
-    inverse_transformation_matrix: NDArray[np.uint32] = cv2.getPerspectiveTransform(destination_format, roi_trapeze)
-
     # Perform the transform using the transformation matrix
     transformed_image: NDArray[np.uint8] = cv2.warpPerspective(
         image, transformation_matrix, (image_width, image_height), flags=(cv2.INTER_LINEAR)
     )
 
-    # TODO check why transformed image needs to be transformed to binary again
-    # Convert image to binary
-    (thresh, transformed_image_binary) = cv2.threshold(
-        transformed_image, thresh=127, maxval=255, type=cv2.THRESH_BINARY
-    )
+    # Sharpen image by thresholding
+    # (thresh, transformed_image_sharpened) = cv2.threshold(
+    #     transformed_image, thresh=127, maxval=255, type=cv2.THRESH_BINARY
+    # )
 
-    transformed_image = transformed_image_binary
+    # transformed_image = transformed_image_sharpened
 
-    # TODO check if pts parameter are provided correctly
     # Display the perspective transformed (i.e. warped) frame
     if plot is True:
         transformed_image_copy = transformed_image.copy()
@@ -207,7 +212,7 @@ def perspective_transform(
 
         cv2.destroyAllWindows()
 
-    return (transformed_image, inverse_transformation_matrix)
+    return transformed_image
 
 
 # TODO remove frame parameter

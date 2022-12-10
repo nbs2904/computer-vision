@@ -8,9 +8,7 @@ from numpy.typing import NDArray
 # TODO update docstring
 
 
-def get_roi(
-    image: NDArray[np.uint8], is_udacity: bool = True, plot: bool = False
-) -> tuple[NDArray[np.float32], NDArray[np.uint8]]:
+def get_roi(height: int, width: int, is_udacity: bool = True) -> NDArray[np.float32]:
     """Get Region of interest for the provided image
 
     Parameters
@@ -20,7 +18,6 @@ def get_roi(
     plot : bool, optional
         Whether or not to plot image with region of interest trapeze, by default False
     """
-    height, width = image.shape
 
     if is_udacity:
         roi_trapeze = np.array(
@@ -43,23 +40,24 @@ def get_roi(
             dtype=np.float32,
         )
 
+    return roi_trapeze
+
+
+def draw_roi(image: NDArray[np.uint8], roi_trapeze: NDArray[np.int32], plot: bool = False) -> NDArray[np.uint8]:
+
     roi_image = image.copy()
-    roi_image = cv2.polylines(roi_image, [roi_trapeze.astype(np.int32)], True, (147, 20, 255), 3)
+    roi_image = cv2.polylines(roi_image, [roi_trapeze], True, (147, 20, 255), 3)
 
-    if plot is not False:
-        # Overlay trapezoid on the frame
-
-        # Display the image
+    if plot:
         while 1:
             cv2.imshow("ROI Image", roi_image)
 
-            # Press any key to stop
             if cv2.waitKey(0):
                 break
 
         cv2.destroyAllWindows()
 
-    return roi_trapeze, roi_image.astype(np.uint8)
+    return roi_image
 
 
 # TODO add types
@@ -69,7 +67,7 @@ def overlay_lane_lines(
     transformed_image: NDArray[np.uint8],
     left_fit_x_indices: NDArray[np.float64],
     right_fit_x_indices: NDArray[np.float64],
-    inverse_transformation_matrix: NDArray[np.uint32],
+    inverse_transformation_matrix: NDArray[np.float64],
     plot: bool = False,
 ) -> NDArray[np.uint8]:
     """Draw detected lines on the original image and store image.
@@ -100,7 +98,6 @@ def overlay_lane_lines(
     )
 
     # Recast the x and y points into usable format for cv2.fillPoly()
-    # TODO what format is ploty?
     pts_left = np.array([np.transpose(np.vstack([left_fit_x_indices, transformed_image_y_indices]))])
     pts_right = np.array([np.flipud(np.transpose(np.vstack([right_fit_x_indices, transformed_image_y_indices])))])
     pts: NDArray[np.int32] = np.hstack((pts_left, pts_right)).astype(np.int32)
