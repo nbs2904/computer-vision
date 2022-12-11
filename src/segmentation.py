@@ -22,9 +22,9 @@ def get_roi(height: int, width: int, is_udacity: bool = True) -> NDArray[np.floa
     if is_udacity:
         roi_trapeze = np.array(
             [
-                (width * (2 / 5), height * (13 / 20)),  # Top-left corner
-                (0.0, (height - 1) * (9 / 10)),  # Bottom-left corner
-                (width - 1, (height - 1) * (9 / 10)),  # Bottom-right corner
+                (width * (4 / 9), height * (13 / 20)),  # Top-left corner
+                (width * (2 / 9), (height - 1) * (9 / 10)),  # Bottom-left corner
+                ((width - 1) * (4 / 5), (height - 1) * (9 / 10)),  # Bottom-right corner
                 (width * (3 / 5), height * (13 / 20)),  # Top-right corner
             ],
             dtype=np.float32,
@@ -96,8 +96,6 @@ def overlay_lane_lines(
     lines_color_image: NDArray[np.uint8] = np.dstack(
         (transformed_image_black, transformed_image_black, transformed_image_black)
     )
-
-    width = original_image.shape[1]
 
     # Recast the x and y points into usable format for cv2.fillPoly()
     pts_left = np.array([np.transpose(np.vstack([left_fit_x_indices, transformed_image_y_indices]))])

@@ -5,6 +5,7 @@ from time import time
 import cv2
 import numpy as np
 
+from src.calibration import calibrate
 from src.detection import get_fit
 from src.pre_processing import (
     get_transformation_matrices,
@@ -29,6 +30,11 @@ def display_video(path: str) -> None:
     transformation_matrix = None
     inverse_matrix = None
 
+    calibrated_camera_matrix = None
+    calibrated_roi = None
+
+    mtx, dist = calibrate()
+
     video = cv2.VideoCapture(path)
 
     start_time = time()
@@ -41,9 +47,20 @@ def display_video(path: str) -> None:
             return
 
         try:
-
             width: int = image.shape[1]
             height: int = image.shape[0]
+
+            if calibrated_camera_matrix is None or calibrated_roi is None:
+                calibrated_camera_matrix, calibrated_roi = cv2.getOptimalNewCameraMatrix(
+                    mtx, dist, (width, height), 1, (width, height)
+                )
+
+            calibrated_dst = cv2.undistort(image, mtx, dist, None, calibrated_camera_matrix)
+            x, y, w, h = calibrated_roi
+            calibrated_image = calibrated_dst[y : y + h, x : x + w]
+
+            height, width, _ = calibrated_image.shape
+
             if destination_format is None:
                 destination_format = np.array(
                     [
@@ -63,7 +80,7 @@ def display_video(path: str) -> None:
 
             # TODO only transform image
             transformed_image = perspective_transform(
-                image, transformation_matrix, destination_format, plot=False  # type: ignore
+                calibrated_image, transformation_matrix, destination_format, plot=False  # type: ignore
             )
 
             highlighted_image = highlight_lines(transformed_image, roi, apply_edge_detection=False, plot=False)
@@ -87,7 +104,7 @@ def display_video(path: str) -> None:
                     break
 
             else:
-                cv2.imshow("ca1", image)
+                cv2.imshow("ca1", calibrated_image)
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     break
 

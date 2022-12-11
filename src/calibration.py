@@ -6,51 +6,56 @@ import numpy as np
 HORIZONTAL_CORNERS = 9
 VERTICAL_CORNERS = 6
 
-# termination criteria
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-# prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-objp = np.zeros((VERTICAL_CORNERS * HORIZONTAL_CORNERS, 3), np.float32)
-objp[:, :2] = np.mgrid[0:HORIZONTAL_CORNERS, 0:VERTICAL_CORNERS].T.reshape(-1, 2)
+def calibrate():
+    # termination criteria
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-# Arrays to store object points and image points from all the images.
-objpoints = []  # 3d point in real world space
-imgpoints = []  # 2d points in image plane.
+    # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
+    objp = np.zeros((VERTICAL_CORNERS * HORIZONTAL_CORNERS, 3), np.float32)
+    objp[:, :2] = np.mgrid[0:HORIZONTAL_CORNERS, 0:VERTICAL_CORNERS].T.reshape(-1, 2)
 
-images = glob.glob("data/img/Udacity/calib/*.jpg")
+    # Arrays to store object points and image points from all the images.
+    objpoints = []  # 3d point in real world space
+    imgpoints = []  # 2d points in image plane.
 
-for fname in images:
-    img = cv2.imread(fname)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    images = glob.glob("data/img/Udacity/calib/*.jpg")
 
-    # Find the chess board corners
-    ret, corners = cv2.findChessboardCorners(gray, (VERTICAL_CORNERS, HORIZONTAL_CORNERS), None)
+    for fname in images:
+        img = cv2.imread(fname)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # If found, add object points, image points (after refining them)
-    if ret is True:
-        objpoints.append(objp)
-        corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-        imgpoints.append(corners2)
+        # Find the chess board corners
+        ret, corners = cv2.findChessboardCorners(gray, (VERTICAL_CORNERS, HORIZONTAL_CORNERS), None)
 
-        # Draw and display the corners
-        cv2.drawChessboardCorners(img, (HORIZONTAL_CORNERS, VERTICAL_CORNERS), corners2, ret)
-        cv2.imshow("Corner Detection for " + fname.split("/")[-1], img)
-        cv2.waitKey(0)
-cv2.destroyAllWindows()
+        # If found, add object points, image points (after refining them)
+        if ret is True:
+            objpoints.append(objp)
+            corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+            imgpoints.append(corners2)
 
-# retval, camera matrix, distortion coefficients, rotation vectors, translation vectors
-ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+            # Draw and display the corners
+            # cv2.drawChessboardCorners(img, (HORIZONTAL_CORNERS, VERTICAL_CORNERS), corners2, ret)
+            # cv2.imshow("Corner Detection for " + fname.split("/")[-1], img)
+            # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
-print("Focal Length:\t[%.2f, %.2f]" % (round(mtx[0][0], 2), round(mtx[1][1], 2)))
-print("Optical Center:\t[%.2f, %.2f]" % (round(mtx[0][2], 2), round(mtx[1][2], 2)))
-print("\nCamera Matrix:")
-print(mtx)
-print("\nDistortion:")
-print(dist)
-print("\nRotation Vector:")
-print(rvecs)
-print("\nTranslation Vector:")
-print(tvecs)
+    # retval, camera matrix, distortion coefficients, rotation vectors, translation vectors
+    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+
+    # print("Focal Length:\t[%.2f, %.2f]" % (round(mtx[0][0], 2), round(mtx[1][1], 2)))
+    # print("Optical Center:\t[%.2f, %.2f]" % (round(mtx[0][2], 2), round(mtx[1][2], 2)))
+    # print("\nCamera Matrix:")
+    # print(mtx)
+    # print("\nDistortion:")
+    # print(dist)
+    # print("\nRotation Vector:")
+    # print(rvecs)
+    # print("\nTranslation Vector:")
+    # print(tvecs)
+
+    return mtx, dist
+
 
 # --------------------------------------------------------------------------
 

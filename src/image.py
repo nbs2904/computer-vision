@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from numpy.typing import NDArray
 
+from src.calibration import calibrate
 from src.detection import get_fit
 from src.pre_processing import (
     get_transformation_matrices,
@@ -19,6 +20,19 @@ def display_image(path: str) -> None:
 
     height, width, _ = original_image.shape
 
+    if is_udacity:
+        mtx, dist = calibrate()
+        calibrated_camera_matrix, calibrated_roi = cv2.getOptimalNewCameraMatrix(
+            mtx, dist, (width, height), 1, (width, height)
+        )
+        dst = cv2.undistort(original_image, mtx, dist, None, calibrated_camera_matrix)
+        x, y, w, h = calibrated_roi
+
+        calibrated_image = dst[y : y + h, x : x + w]
+        height, width, _ = calibrated_image.shape
+    else:
+        calibrated_image = original_image
+
     padding = 0
     roi = get_roi(height, width, is_udacity)
     destination_format: NDArray[np.int32] = np.array(
@@ -31,8 +45,8 @@ def display_image(path: str) -> None:
         dtype=np.int32,
     )
 
-    draw_roi(original_image, roi.astype(np.int32), plot=False)
-    highlighted_image = highlight_lines(original_image, roi, apply_edge_detection=True, plot=False)
+    draw_roi(calibrated_image, roi.astype(np.int32), plot=True)
+    highlighted_image = highlight_lines(calibrated_image, roi, apply_edge_detection=True, plot=False)
 
     transformation_matrix, inverse_matrix = get_transformation_matrices(roi, destination_format.astype(np.float32))
     transformed_image = perspective_transform(highlighted_image, transformation_matrix, destination_format, plot=False)
@@ -42,7 +56,7 @@ def display_image(path: str) -> None:
     if left_fit_indices is not None and right_fit_indices is not None:
 
         output_image = overlay_lane_lines(
-            original_image, transformed_image, left_fit_indices, right_fit_indices, inverse_matrix
+            calibrated_image, transformed_image, left_fit_indices, right_fit_indices, inverse_matrix
         )
 
         cv2.imshow("Output Image", output_image)

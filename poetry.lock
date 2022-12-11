@@ -470,7 +470,7 @@ gitdb = ">=4.0.1,<5"
 
 [[package]]
 name = "griffe"
-version = "0.24.1"
+version = "0.25.0"
 description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
 category = "dev"
 optional = false
@@ -2393,8 +2393,8 @@ GitPython = [
     {file = "GitPython-3.1.29.tar.gz", hash = "sha256:cc36bfc4a3f913e66805a28e84703e419d9c264c1077e537b54f0e1af85dbefd"},
 ]
 griffe = [
-    {file = "griffe-0.24.1-py3-none-any.whl", hash = "sha256:cfd17f61f3815be5a83f27303cd3db6e9fd9328d4070e4824cd5573763a28961"},
-    {file = "griffe-0.24.1.tar.gz", hash = "sha256:acc7e6aac2495ffbfd70b2cdd801fff1299ec3e5efaaad23ccd316b711f1d11d"},
+    {file = "griffe-0.25.0-py3-none-any.whl", hash = "sha256:57527250e06c0fac5381c5ccc9695b6c46a3af51928d99364bf2e5fd9aabf37d"},
+    {file = "griffe-0.25.0.tar.gz", hash = "sha256:35d412d2235330a05c755f906458c70ee8a4eec85bc3de20f1fd79d0a501dc38"},
 ]
 identify = [
     {file = "identify-2.5.9-py2.py3-none-any.whl", hash = "sha256:a390fb696e164dbddb047a0db26e57972ae52fbd037ae68797e5ae2f4492485d"},
