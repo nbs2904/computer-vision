@@ -3,24 +3,31 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
 
-from src.pre_processing import calculate_histogram, get_weighted_histogram
+from src.pre_processing import calculate_histogram
 
 
-# TODO update docstring
 def histogram_peak(histogram: NDArray[np.uint32], min_x: int, max_x: int) -> int:
-    """Returns maximum of histogram in provided interval
+    """Returns peak of provided histogram
+
+    Parameters
+    ----------
+    histogram : NDArray[np.uint32]
+        histogram that should be searched
+    min_x : int
+        lower boundary of search area
+    max_x : int
+        upper boundary of search area
 
     Returns
     -------
-    _type_
-        x-coordinates of histogram peak for left and right line.
+    int
+        x position of histogram peak
     """
     peak_x = int(np.argmax(histogram[min_x:max_x]))
 
     return peak_x + min_x
 
 
-# TODO add docstring
 def get_fit(
     param_image: NDArray[np.uint8],
     last_left_fit: NDArray[np.float64] | None = None,
@@ -31,9 +38,37 @@ def get_fit(
 ) -> tuple[
     NDArray[np.float64] | None, NDArray[np.float64] | None, NDArray[np.float64] | None, NDArray[np.float64] | None
 ]:
+    """Return fit for highlighted image
 
+    First check if enough white pixel are inside the proximity of the last polynomial.
+    If not enough pixels are inside the proximity or no last polynomial is provided,
+    a new polynomial is calculated using sliding windows.
+    After that, the polynomial is reshaped based on its proximity to better fit it.
+    Lastly, if the polynomial changed too much, the new polynomial is discarded and the old one is returned.
+    If any step should fail because of too little white pixel, no polynomial is returned.
+    This entire procedure is executed for both the left and right side to get two polynomials that form the street lane.
+
+    Parameters
+    ----------
+    param_image : NDArray[np.uint8]
+        highlighted and transformed image
+    last_left_fit : NDArray[np.float64] | None, optional
+        left polynomial of last frame, if it exists, by default None
+    last_right_fit : NDArray[np.float64] | None, optional
+        right polynomial of last frame, if it exists, by default None
+    last_left_fit_indices : NDArray[np.float64] | None, optional
+        the corresponding x value for the entire height, for the left polynomial, by default None
+    last_right_fit_indices : NDArray[np.float64] | None, optional
+        the corresponding x value for the entire height, for the right polynomial, by default None
+    plot : bool, optional
+        if the result should be plotted, by default False
+
+    Returns
+    -------
+    tuple[ NDArray[np.float64] | None, NDArray[np.float64] | None, NDArray[np.float64] | None, NDArray[np.float64] | None ]
+        new left fit, new left fit indices, new right fit, new right fit indices
+    """
     # copy image to avoid manipulation of input image
-    # TODO possibly remove if TODO in line 300 is removed
     image = param_image.copy()
 
     # backup fits from last frame. Needed if new fit differs too much
@@ -54,7 +89,7 @@ def get_fit(
     white_pixel_indices_x = np.array(white_pixel[1])
     white_pixel_indices_y = np.array(white_pixel[0])
 
-    histogram = calculate_histogram(image, window_amount, plot=plot)
+    histogram = calculate_histogram(image, plot=plot)
 
     # minimum pixels required inside proximity to only fit with proximity
     proximity_pixel_count_threshold = 400
@@ -185,7 +220,9 @@ def get_fit(
         left_proximity_values_x = white_pixel_indices_x[left_lane_indices]
         left_proximity_values_y = white_pixel_indices_y[left_lane_indices]
 
-        new_left_fit, new_left_fit_indices = get_proximity_fit(image, left_proximity_values_x, left_proximity_values_y)
+        new_left_fit, new_left_fit_indices = get_proximity_fit(
+            image.shape[0], left_proximity_values_x, left_proximity_values_y
+        )
 
     # if last_right_fit is None, calculating right windows failed
     if last_right_fit is not None:
@@ -213,15 +250,10 @@ def get_fit(
 
         # calculate right proximity fit
         new_right_fit, new_right_fit_indices = get_proximity_fit(
-            image, right_proximity_values_x, right_proximity_values_y
+            image.shape[0], right_proximity_values_x, right_proximity_values_y
         )
 
-    if new_left_fit is not None and backup_left_fit is not None:
-        print(f"right:")
-        # print(int(abs(new_right_fit[1] - backup_right_fit[1])))
-        # print(int(abs(new_right_fit[2] - backup_right_fit[2])))
-        print("average x distance right:", calculate_mean_squared_error(backup_left_fit, new_left_fit, height))
-
+    # load left fit backup if proximity fit failed or changed too much
     if backup_left_fit is not None:
         if new_left_fit is None:
             new_left_fit = backup_left_fit
@@ -230,6 +262,7 @@ def get_fit(
             new_left_fit = backup_left_fit
             new_left_fit_indices = last_left_fit_indices
 
+    # load right fit backup if proximity fit failed or changed too much
     if backup_right_fit is not None:
         if new_right_fit is None:
             new_right_fit = backup_right_fit
@@ -237,24 +270,6 @@ def get_fit(
         elif calculate_mean_squared_error(backup_right_fit, new_right_fit, height) > 320:
             new_right_fit = backup_right_fit
             new_right_fit_indices = last_right_fit_indices
-
-    # load left fit backup if proximity fit failed or changed too much
-    # if backup_left_fit is not None and (
-    #     new_left_fit is None
-    #     or abs(new_left_fit[1] - backup_left_fit[1]) > 2
-    #     or abs(new_left_fit[2] - backup_left_fit[2]) > 55
-    # ):
-    #     new_left_fit = backup_left_fit
-    #     new_left_fit_indices = last_left_fit_indices
-
-    # load right fit backup if proximity fit failed or changed too much
-    # if backup_right_fit is not None and (
-    #     new_right_fit is None
-    #     or abs(new_right_fit[1] - backup_right_fit[1]) > 2
-    #     or abs(new_right_fit[2] - backup_right_fit[2]) > 55
-    # ):
-    #     new_right_fit = backup_right_fit
-    #     new_right_fit_indices = last_right_fit_indices
 
     if plot is True:
         # plot relevant results if requested
@@ -281,7 +296,6 @@ def get_fit(
     return new_left_fit, new_left_fit_indices, new_right_fit, new_right_fit_indices
 
 
-# TODO add docstring
 def get_window_fit(
     histogram: NDArray[np.uint32],
     historgram_min_x: int,
@@ -291,6 +305,30 @@ def get_window_fit(
     white_pixel_indices_y: NDArray[np.intp],
     window_amount: int,
 ) -> NDArray[np.float64] | None:
+    """Fits a polynomial for the provided x range with the sliding window technique
+
+    Parameters
+    ----------
+    histogram : NDArray[np.uint32]
+        histogram for white pixels for the entire length of the image
+    historgram_min_x : int
+        lower x boundary for histogram area that should be considered
+    histogram_max_x : int
+        upper x boundary for histogram area that should be considered
+    image : NDArray[np.uint8]
+        the image which is analysed
+    white_pixel_indices_x : NDArray[np.intp]
+        list of x values of all white pixels
+    white_pixel_indices_y : NDArray[np.intp]
+        list of y values of all white pixels
+    window_amount : int
+        number of windows used for sliding windows technique
+
+    Returns
+    -------
+    NDArray[np.float64] | None
+        polynomial of the calculated fit
+    """
 
     height, width = image.shape
 
@@ -319,7 +357,6 @@ def get_window_fit(
         window_min_y = int(height - (window + 1) * window_height)
         window_max_y = int(height - window * window_height)
 
-        # TODO possibly remove
         cv2.rectangle(image, (window_min_x, window_min_y), (window_max_x, window_max_y), (255, 255, 255), 2)
 
         # get white pixel within window
@@ -354,12 +391,27 @@ def get_window_fit(
     return polynomial
 
 
-# TODO add docstring
 def get_proximity_fit(
-    image: NDArray[np.uint8],
+    image_height: int,
     proximity_pixel_values_x: NDArray[np.intp],
     proximity_pixel_values_y: NDArray[np.intp],
 ) -> tuple[NDArray[np.float64], NDArray[np.float64]] | None:
+    """Fits a new polynomial to the white pixels that are in close proximity of the last fitted polynomial.
+
+    Parameters
+    ----------
+    image_height : NDArray[np.uint8]
+        Height of image the polynomial should be fitted to
+    proximity_pixel_values_x : NDArray[np.intp]
+        x-values of white pixels that are in close proximity to the last polynomial
+    proximity_pixel_values_y : NDArray[np.intp]
+        y-values of white pixels that are in close proximity to the last polynomial
+
+    Returns
+    -------
+    tuple[NDArray[np.float64], NDArray[np.float64]] | None
+        New fitted polynomial and all x-values of the polynomial for every y-value of the image
+    """
 
     # if no values are found in the proximity, return without fit
     if len(proximity_pixel_values_x) == 0:
@@ -368,52 +420,30 @@ def get_proximity_fit(
     # get 2nd degree fit for white pixel in last fit
     polynomial = np.polyfit(proximity_pixel_values_y, proximity_pixel_values_x, 2)
 
-    ploty = np.linspace(0, image.shape[0] - 1, image.shape[0])
-    fit_x: NDArray[np.float64] = polynomial[0] * ploty**2 + polynomial[1] * ploty + polynomial[2]
+    y_values = np.linspace(0, image_height - 1, image_height)
+    polynomial_x_values: NDArray[np.float64] = polynomial[0] * y_values**2 + polynomial[1] * y_values + polynomial[2]
 
-    return polynomial, fit_x
+    return polynomial, polynomial_x_values
 
 
-def calculate_average_x_distance(
-    last_fit: NDArray[np.float64], new_fit: NDArray[np.float64], min_y_value: int, max_y_value: int
-) -> float:
-    """Calculates average x distance between last and new fit functions by averaging the integral of both polynomials across `min_y_value` and `max_y_value`
+def calculate_mean_squared_error(last_fit: NDArray[np.float64], new_fit: NDArray[np.float64], height: int) -> float:
+    """Calculates the mean squared error of the `new_fit` polynomial compared to given `last_fit` polynomial.
 
     Parameters
     ----------
     last_fit : NDArray[np.float64]
-        _description_
+        Polynomial of 2 degrees
     new_fit : NDArray[np.float64]
-        _description_
-    min_y_value : int
-        _description_
-    max_y_value : int
-        _description_
+        Polynomial of 2 degrees
+    height : int
+        Max y value the error should be calculated of
 
     Returns
     -------
     float
-        _description_
+        Mean Squared error
     """
-    return abs(
-        (
-            (
-                (1 / 3) * max_y_value**3 * (last_fit[0] - new_fit[0])
-                + (1 / 2) * max_y_value**2 * (last_fit[1] - new_fit[1])
-                + max_y_value * (last_fit[2] - new_fit[2])
-            )
-            - (
-                (1 / 3) * min_y_value**3 * (last_fit[0] - new_fit[0])
-                + (1 / 2) * min_y_value**2 * (last_fit[1] - new_fit[1])
-                + min_y_value * (last_fit[2] - new_fit[2])
-            )
-        )
-        / (max_y_value - min_y_value)
-    )
-
-
-def calculate_mean_squared_error(last_fit: NDArray[np.float64], new_fit: NDArray[np.float64], height: int) -> float:
-    y_values = np.linspace(0, height - 1, height)
+    y_values: NDArray[np.int32] = np.linspace(0, height - 1, height).astype(np.int32)
 
     return np.sum(
         (
