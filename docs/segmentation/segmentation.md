@@ -1,3 +1,0 @@
-# Segmentation
-
-::: src.segmentation.mask

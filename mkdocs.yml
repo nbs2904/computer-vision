@@ -12,11 +12,12 @@ nav:
       - Readme: index.md
       - License: license.md
   - Documentation:
-      hello_world: hello_world.md
-      Detection:
-        - Lines: detection/detection.md
-      Segmentation:
-        - Mask: segmentation/segmentation.md
+      Calibration: calibration.md
+      Segmentation: segmentation.md
+      Pre-Processing: pre_processing.md
+      Detection: detection.md
+      Image: image.md
+      Video: video.md
 
 # Plugins
 plugins:

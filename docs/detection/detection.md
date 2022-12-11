@@ -1,3 +1,0 @@
-# Detection
-
-::: src.detection.lines
