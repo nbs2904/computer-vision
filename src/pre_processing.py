@@ -84,10 +84,10 @@ def highlight_lines(
         light_channel_strip_binary_blurred: NDArray[np.uint8] = cv2.GaussianBlur(
             light_channel_strip_binary, ksize=(gaussian_ksize, gaussian_ksize), sigmaX=0
         )
-        cv2.imshow("light_blurred", light_channel_strip_binary_blurred)
-        cv2.imshow("saturation", saturation_channel_strip_binary)
+        # cv2.imshow("light_blurred", light_channel_strip_binary_blurred)
+        # cv2.imshow("saturation", saturation_channel_strip_binary)
 
-        cv2.imshow("red", red_channel_strip_binary)
+        # cv2.imshow("red", red_channel_strip_binary)
 
         red_saturation_binary: NDArray[np.uint8] = cv2.bitwise_and(
             saturation_channel_strip_binary, red_channel_strip_binary
@@ -97,7 +97,7 @@ def highlight_lines(
 
     highlighted_image = np.concatenate(highlighted_strips, axis=0)
 
-    cv2.imshow("combined_strips", highlighted_image)
+    # cv2.imshow("combined_strips", highlighted_image)
 
     # light_channel_top_mean = np.mean(light_channel_top)
     # light_channel_top_middle_mean = np.mean(light_channel_middle)
@@ -161,13 +161,19 @@ def highlight_lines(
         # 1s will be in the cells with the highest Sobel derivative values
         # (i.e. strongest lane line edges)
         # ! sxbinary = edges.mag_thresh(sxbinary, sobel_kernel=3, thresh=(110, 255))
+
+        _, light_channel_binary = cv2.threshold(image_hls[:, :, 1], thresh=180, maxval=255, type=cv2.THRESH_BINARY)
+        light_channel_binary_blurred: NDArray[np.uint8] = cv2.GaussianBlur(
+            light_channel_binary, ksize=(gaussian_ksize, gaussian_ksize), sigmaX=0
+        )
         light_channel_canny: NDArray[np.uint8] = cv2.Canny(light_channel_binary_blurred, threshold1=10, threshold2=200)
 
+        cv2.imshow("canny", light_channel_canny)
         ### Combine the possible lane lines with the possible lane line edges #####
         # If you show rs_binary visually, you'll see that it is not that different
         # from this return value. The edges of lane lines are thin lines of pixels.
 
-        highlighted_image = cv2.bitwise_or(red_saturation_binary, light_channel_canny).astype(np.uint8)
+        highlighted_image = cv2.bitwise_or(highlighted_image, light_channel_canny).astype(np.uint8)
         # self.lane_line_markings = cv2.bitwise_and(rs_binary, sxbinary.astype(np.uint8))
 
         # cv2.imshow("s_binary", s_binary)
@@ -186,30 +192,30 @@ def highlight_lines(
         orignal_image_plot.set_title("Orignal Image")
         orignal_image_plot.imshow(orignial_image_rgb)
 
-        light_channel_binary_plot = figure.add_subplot(plot_count_y, plot_count_x, 2)
-        light_channel_binary_plot.set_title("Light Channel Binary Blurred")
-        light_channel_binary_plot.imshow(light_channel_binary_blurred, cmap="gray")
+        # light_channel_binary_plot = figure.add_subplot(plot_count_y, plot_count_x, 2)
+        # light_channel_binary_plot.set_title("Light Channel Binary Blurred")
+        # light_channel_binary_plot.imshow(light_channel_binary_blurred, cmap="gray")
 
-        saturation_channel_binary_plot = figure.add_subplot(plot_count_y, plot_count_x, 3)
-        saturation_channel_binary_plot.set_title("Saturation Channel Binary")
-        saturation_channel_binary_plot.imshow(saturation_channel_binary, cmap="gray")
+        # saturation_channel_binary_plot = figure.add_subplot(plot_count_y, plot_count_x, 3)
+        # saturation_channel_binary_plot.set_title("Saturation Channel Binary")
+        # saturation_channel_binary_plot.imshow(saturation_channel_binary, cmap="gray")
 
-        red_channel_binary_plot = figure.add_subplot(plot_count_y, plot_count_x, 4)
-        red_channel_binary_plot.set_title("Red Channel Binary")
-        red_channel_binary_plot.imshow(red_channel_binary, cmap="gray")
+        # red_channel_binary_plot = figure.add_subplot(plot_count_y, plot_count_x, 4)
+        # red_channel_binary_plot.set_title("Red Channel Binary")
+        # red_channel_binary_plot.imshow(red_channel_binary, cmap="gray")
 
-        red_and_saturation_binary_plot = figure.add_subplot(plot_count_y, plot_count_x, 5)
-        red_and_saturation_binary_plot.set_title("Red and Saturation")
-        red_and_saturation_binary_plot.imshow(red_saturation_binary, cmap="gray")
+        # red_and_saturation_binary_plot = figure.add_subplot(plot_count_y, plot_count_x, 5)
+        # red_and_saturation_binary_plot.set_title("Red and Saturation")
+        # red_and_saturation_binary_plot.imshow(red_saturation_binary, cmap="gray")
 
         red_saturation_lightness_plot = figure.add_subplot(plot_count_y, plot_count_x, 6)
         red_saturation_lightness_plot.set_title("Red and Saturation or Lightness")
         red_saturation_lightness_plot.imshow(highlighted_image, cmap="gray")
 
-        if apply_edge_detection:
-            light_channel_canny_plot = figure.add_subplot(plot_count_y, plot_count_x, 7)
-            light_channel_canny_plot.set_title("Light Channel Canny")
-            light_channel_canny_plot.imshow(light_channel_canny, cmap="gray")
+        # if apply_edge_detection:
+        #     light_channel_canny_plot = figure.add_subplot(plot_count_y, plot_count_x, 7)
+        #     light_channel_canny_plot.set_title("Light Channel Canny")
+        #     light_channel_canny_plot.imshow(light_channel_canny, cmap="gray")
 
         plt.show()
 
@@ -264,13 +270,6 @@ def perspective_transform(
     transformed_image: NDArray[np.uint8] = cv2.warpPerspective(
         image, transformation_matrix, (destination_format_width, destination_format_height), flags=(cv2.INTER_LINEAR)
     )
-
-    # Sharpen image by thresholding
-    # (thresh, transformed_image_sharpened) = cv2.threshold(
-    #     transformed_image, thresh=127, maxval=255, type=cv2.THRESH_BINARY
-    # )
-
-    # transformed_image = transformed_image_sharpened
 
     # Display the perspective transformed (i.e. warped) frame
     if plot is True:
@@ -332,7 +331,7 @@ def calculate_histogram(image: NDArray[np.uint8], sliding_window_count: int, plo
 
         # Draw both the image and the histogram
         figure, (ax1, ax2) = plt.subplots(2, 1)  # 2 row, 1 columns
-        figure.set_size_inches(10, 5)
+        figure.set_size_inches(10, 8)
         ax1.imshow(image, cmap="gray")
         ax1.set_title("Transformed Binary Image")
         ax2.plot(histogram)
@@ -340,13 +339,3 @@ def calculate_histogram(image: NDArray[np.uint8], sliding_window_count: int, plo
         plt.show()
 
     return histogram
-
-
-# ? just for testing
-
-FILE_NAME = "data/img/Udacity/image001.jpg"
-if __name__ == "__main__":
-    original_image = cv2.imread(FILE_NAME).astype(np.uint8)
-    test = highlight_lines(original_image, apply_edge_detection=True)
-
-# ? ----------------

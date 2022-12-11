@@ -38,10 +38,11 @@ def histogram_peak(histogram: NDArray[np.uint32], min_x: int, max_x: int) -> int
 
 def get_fit(
     param_image: NDArray[np.uint8],
-    last_left_fit: NDArray[np.float64] | None,
-    last_right_fit: NDArray[np.float64] | None,
-    last_left_fit_indices: NDArray[np.float64] | None,
-    last_right_fit_indices: NDArray[np.float64] | None,
+    last_left_fit: NDArray[np.float64] | None = None,
+    last_right_fit: NDArray[np.float64] | None = None,
+    last_left_fit_indices: NDArray[np.float64] | None = None,
+    last_right_fit_indices: NDArray[np.float64] | None = None,
+    plot: bool = False,
 ) -> tuple[
     NDArray[np.float64] | None, NDArray[np.float64] | None, NDArray[np.float64] | None, NDArray[np.float64] | None
 ]:
@@ -64,16 +65,12 @@ def get_fit(
     white_pixel_indices_x = np.array(white_pixel[1])
     white_pixel_indices_y = np.array(white_pixel[0])
 
-    histogram = calculate_histogram(image, window_amount)
+    histogram = calculate_histogram(image, window_amount, plot=plot)
 
     proximity_pixel_count_threshold = 400
 
     left_lane_indices = None
     right_lane_indices = None
-
-    # Get the left and right lane line pixel locations
-    # x_values = white_pixel_indices_x[lane_inds]
-    # y_values = white_pixel_indices_y[lane_inds]
 
     new_left_fit = None
     new_right_fit = None
@@ -107,16 +104,6 @@ def get_fit(
         # print("left proximity count:", len(left_proximity_values_x))
 
         if len(left_proximity_values_x) < proximity_pixel_count_threshold:
-            # if len(left_proximity_values_x[left_proximity_values_x > width / 2]) < proximity_pixel_count_threshold:
-            # last_left_fit = get_window_fit(
-            #     histogram,
-            #     historgram_min_x=0,
-            #     histogram_max_x=int(width / 2),
-            #     image=image,
-            #     white_pixel_indices_x=white_pixel_indices_x,
-            #     white_pixel_indices_y=white_pixel_indices_y,
-            #     window_amount=window_amount,
-            # )
             last_left_fit = None
 
     if last_right_fit is not None:
@@ -149,17 +136,6 @@ def get_fit(
         # print(min(right_proximity_values_x), max(right_proximity_values_x))
 
         if len(right_proximity_values_x) < proximity_pixel_count_threshold:
-            # if len(right_proximity_values_x[right_proximity_values_x > width / 2]) < proximity_pixel_count_threshold:
-            # last_right_fit = get_window_fit(
-            #     histogram,
-            #     historgram_min_x=int(width / 2),
-            #     histogram_max_x=width - 1,
-            #     image=image,
-            #     white_pixel_indices_x=white_pixel_indices_x,
-            #     white_pixel_indices_y=white_pixel_indices_y,
-            #     window_amount=window_amount,
-            # )
-
             last_right_fit = None
 
     # print(f"left_window: {last_left_fit is None}; right:window: {last_right_fit is None}")
@@ -273,6 +249,27 @@ def get_fit(
         new_right_fit = backup_right_fit
         new_right_fit_indices = last_right_fit_indices
 
+    if plot is True:
+        plt.imshow(image, cmap="gray")
+
+        height = image.shape[0]
+        y_values = np.linspace(0, height - 1, height)
+
+        if last_left_fit is not None:
+            window_left_fit_x = last_left_fit[0] * y_values**2 + last_left_fit[1] * y_values + last_left_fit[2]
+            plt.plot(window_left_fit_x, y_values, color="green", scalex=4)
+        if last_right_fit is not None:
+            window_right_fit_x = last_right_fit[0] * y_values**2 + last_right_fit[1] * y_values + last_right_fit[2]
+            plt.plot(window_right_fit_x, y_values, color="green", scalex=4)
+
+        if new_left_fit is not None:
+            proximity_left_fit_x = new_left_fit[0] * y_values**2 + new_left_fit[1] * y_values + new_left_fit[2]
+            plt.plot(proximity_left_fit_x, y_values, color="red", scalex=4)
+        if new_right_fit is not None:
+            proximity_right_fit_x = new_right_fit[0] * y_values**2 + new_right_fit[1] * y_values + new_right_fit[2]
+            plt.plot(proximity_right_fit_x, y_values, color="red", scalex=4)
+
+        plt.show()
     return new_left_fit, new_left_fit_indices, new_right_fit, new_right_fit_indices
 
 
@@ -355,22 +352,6 @@ def get_proximity_fit(
     proximity_pixel_values_x: NDArray[np.intp],
     proximity_pixel_values_y: NDArray[np.intp],
 ) -> tuple[NDArray[np.float64], NDArray[np.float64]] | None:
-
-    # width = image.shape[1]
-
-    # Store left and right lane pixel indices
-    # lane_inds = (
-    #     white_pixel_indices_x
-    #     > (fit[0] * (white_pixel_indices_y**2) + fit[1] * white_pixel_indices_y + fit[2] - proximity)
-    # ) & (
-    #     white_pixel_indices_x
-    #     < (fit[0] * (white_pixel_indices_y**2) + fit[1] * white_pixel_indices_y + fit[2] + proximity)
-    # )
-
-    # # Get the left and right lane line pixel locations
-    # x_values = white_pixel_indices_x[lane_inds]
-    # y_values = white_pixel_indices_y[lane_inds]
-
     # Fit a second order polynomial curve to each lane line
     if len(proximity_pixel_values_x) == 0:
         return None

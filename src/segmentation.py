@@ -32,10 +32,10 @@ def get_roi(height: int, width: int, is_udacity: bool = True) -> NDArray[np.floa
     else:
         roi_trapeze = np.array(
             [
-                (width * (1 / 4), height * (1 / 2)),  # Top-left corner
+                (width * (1 / 3), height * (1 / 2)),  # Top-left corner
                 (0, height - 1),  # Bottom-left corner
                 ((width - 1), height - 1),  # Bottom-right corner
-                (width * (3 / 4), height * (1 / 2)),  # Top-right corner
+                (width * (2 / 3), height * (1 / 2)),  # Top-right corner
             ],
             dtype=np.float32,
         )

@@ -14,7 +14,7 @@ from src.pre_processing import (
 from src.segmentation import get_roi, overlay_lane_lines
 
 
-def display_video() -> None:
+def display_video(path: str) -> None:
 
     print("Started displaying video")
 
@@ -30,7 +30,7 @@ def display_video() -> None:
     transformation_matrix = None
     inverse_matrix = None
 
-    video = cv2.VideoCapture("./data/img/Udacity/challenge_video.mp4")
+    video = cv2.VideoCapture(path)
 
     start_time = time()
     elapsed = int()
@@ -46,15 +46,6 @@ def display_video() -> None:
             width: int = image.shape[1]
             height: int = image.shape[0]
             if destination_format is None:
-                # destination_format = np.array(
-                #     [
-                #         [padding, 0],  # Top-left corner
-                #         [padding, height],  # Bottom-left corner
-                #         [width - padding, height],  # Bottom-right corner
-                #         [width - padding, 0],  # Top-right corner
-                #     ],
-                #     np.float32,
-                # )
                 destination_format = np.array(
                     [
                         [padding, 0],  # Top-left corner
@@ -84,6 +75,7 @@ def display_video() -> None:
                 right_fit,
                 last_left_fit_indices=left_fit_indices,
                 last_right_fit_indices=right_fit_indices,
+                plot=False,
             )
 
             if left_fit_indices is not None and right_fit_indices is not None:
@@ -112,6 +104,3 @@ def display_video() -> None:
 
     video.release()
     cv2.destroyAllWindows()
-
-
-display_video()
