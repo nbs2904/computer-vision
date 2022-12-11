@@ -25,8 +25,8 @@ def display_video(path: str) -> None:
     roi = None
     destination_format = None
 
-    transformation_matrix = None
-    inverse_matrix = None
+    transformation_matrix_calibrated = None
+    inverse_matrix_calibrated = None
 
     calibrated_camera_matrix = None
     calibrated_roi = None
@@ -47,44 +47,48 @@ def display_video(path: str) -> None:
             return
 
         try:
-            width: int = image.shape[1]
-            height: int = image.shape[0]
+            width_original: int = image.shape[1]
+            height_original: int = image.shape[0]
 
             if calibrated_camera_matrix is None or calibrated_roi is None:
                 calibrated_camera_matrix, calibrated_roi = cv2.getOptimalNewCameraMatrix(
-                    mtx, dist, (width, height), 1, (width, height)
+                    mtx, dist, (width_original, height_original), 1, (width_original, height_original)
                 )
 
             calibrated_dst = cv2.undistort(image, mtx, dist, None, calibrated_camera_matrix)
             x, y, w, h = calibrated_roi
             calibrated_image = calibrated_dst[y : y + h, x : x + w]
 
-            height, width, _ = calibrated_image.shape
+            height_calibrated, width_calibrated, _ = calibrated_image.shape
 
             if destination_format is None:
                 destination_format = np.array(
                     [
                         [0, 0],  # Top-left corner
-                        [0, int(height / 2)],  # Bottom-left corner
-                        [int(width / 2), int(height / 2)],  # Bottom-right corner
-                        [int(width / 2), 0],  # Top-right corner
+                        [0, int(height_calibrated / 2)],  # Bottom-left corner
+                        [int(width_calibrated / 2), int(height_calibrated / 2)],  # Bottom-right corner
+                        [int(width_calibrated / 2), 0],  # Top-right corner
                     ],
                     np.float32,
                 )
 
             if roi is None:
-                roi = get_roi(height, width)
+                roi = get_roi(height_calibrated, width_calibrated)
 
-            if inverse_matrix is None:
-                transformation_matrix, inverse_matrix = get_transformation_matrices(roi, destination_format)
+            if inverse_matrix_calibrated is None:
+                transformation_matrix_calibrated, inverse_matrix_calibrated = get_transformation_matrices(
+                    roi, destination_format
+                )
                 start_time = time()
 
             # TODO only transform image
             transformed_image = perspective_transform(
-                calibrated_image, transformation_matrix, destination_format, plot=False  # type: ignore
+                calibrated_image, transformation_matrix_calibrated, destination_format, plot=False  # type: ignore
             )
 
             highlighted_image = highlight_lines(transformed_image, roi, apply_edge_detection=False, plot=False)
+
+            cv2.imshow("highlighte", highlighted_image)
 
             left_fit, left_fit_indices, right_fit, right_fit_indices = get_fit(
                 highlighted_image,
@@ -97,7 +101,7 @@ def display_video(path: str) -> None:
 
             if left_fit_indices is not None and right_fit_indices is not None:
                 output_image = overlay_lane_lines(
-                    image, highlighted_image, left_fit_indices, right_fit_indices, inverse_matrix  # type: ignore
+                    calibrated_image, highlighted_image, left_fit_indices, right_fit_indices, inverse_matrix_calibrated  # type: ignore
                 )
 
                 cv2.imshow("ca1", output_image)

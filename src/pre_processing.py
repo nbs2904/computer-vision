@@ -75,7 +75,7 @@ def highlight_lines(
 
         else:
             _, saturation_channel_strip_binary = cv2.threshold(
-                cur_saturation_channel_strip, thresh=30, maxval=255, type=cv2.THRESH_BINARY_INV
+                cur_saturation_channel_strip, thresh=50, maxval=255, type=cv2.THRESH_BINARY
             )
             _, red_channel_strip_binary = cv2.threshold(
                 cur_red_channel_strip, thresh=30, maxval=255, type=cv2.THRESH_BINARY

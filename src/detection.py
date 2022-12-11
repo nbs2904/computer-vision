@@ -40,6 +40,7 @@ def get_fit(
     backup_left_fit = last_left_fit
     backup_right_fit = last_right_fit
 
+    height = image.shape[0]
     width = image.shape[1]
 
     # define how many windows are created
@@ -215,23 +216,45 @@ def get_fit(
             image, right_proximity_values_x, right_proximity_values_y
         )
 
+    if new_left_fit is not None and backup_left_fit is not None:
+        print(f"right:")
+        # print(int(abs(new_right_fit[1] - backup_right_fit[1])))
+        # print(int(abs(new_right_fit[2] - backup_right_fit[2])))
+        print("average x distance right:", calculate_mean_squared_error(backup_left_fit, new_left_fit, height))
+
+    if backup_left_fit is not None:
+        if new_left_fit is None:
+            new_left_fit = backup_left_fit
+            new_left_fit_indices = last_left_fit_indices
+        elif calculate_mean_squared_error(backup_left_fit, new_left_fit, height) > 320:
+            new_left_fit = backup_left_fit
+            new_left_fit_indices = last_left_fit_indices
+
+    if backup_right_fit is not None:
+        if new_right_fit is None:
+            new_right_fit = backup_right_fit
+            new_right_fit_indices = last_right_fit_indices
+        elif calculate_mean_squared_error(backup_right_fit, new_right_fit, height) > 320:
+            new_right_fit = backup_right_fit
+            new_right_fit_indices = last_right_fit_indices
+
     # load left fit backup if proximity fit failed or changed too much
-    if backup_left_fit is not None and (
-        new_left_fit is None
-        or abs(new_left_fit[1] - backup_left_fit[1]) > 4
-        or abs(new_left_fit[2] - backup_left_fit[2]) > 120
-    ):
-        new_left_fit = backup_left_fit
-        new_left_fit_indices = last_left_fit_indices
+    # if backup_left_fit is not None and (
+    #     new_left_fit is None
+    #     or abs(new_left_fit[1] - backup_left_fit[1]) > 2
+    #     or abs(new_left_fit[2] - backup_left_fit[2]) > 55
+    # ):
+    #     new_left_fit = backup_left_fit
+    #     new_left_fit_indices = last_left_fit_indices
 
     # load right fit backup if proximity fit failed or changed too much
-    if backup_right_fit is not None and (
-        new_right_fit is None
-        or abs(new_right_fit[1] - backup_right_fit[1]) > 4
-        or abs(new_right_fit[2] - backup_right_fit[2]) > 120
-    ):
-        new_right_fit = backup_right_fit
-        new_right_fit_indices = last_right_fit_indices
+    # if backup_right_fit is not None and (
+    #     new_right_fit is None
+    #     or abs(new_right_fit[1] - backup_right_fit[1]) > 2
+    #     or abs(new_right_fit[2] - backup_right_fit[2]) > 55
+    # ):
+    #     new_right_fit = backup_right_fit
+    #     new_right_fit_indices = last_right_fit_indices
 
     if plot is True:
         # plot relevant results if requested
@@ -349,3 +372,53 @@ def get_proximity_fit(
     fit_x: NDArray[np.float64] = polynomial[0] * ploty**2 + polynomial[1] * ploty + polynomial[2]
 
     return polynomial, fit_x
+
+
+def calculate_average_x_distance(
+    last_fit: NDArray[np.float64], new_fit: NDArray[np.float64], min_y_value: int, max_y_value: int
+) -> float:
+    """Calculates average x distance between last and new fit functions by averaging the integral of both polynomials across `min_y_value` and `max_y_value`
+
+    Parameters
+    ----------
+    last_fit : NDArray[np.float64]
+        _description_
+    new_fit : NDArray[np.float64]
+        _description_
+    min_y_value : int
+        _description_
+    max_y_value : int
+        _description_
+
+    Returns
+    -------
+    float
+        _description_
+    """
+    return abs(
+        (
+            (
+                (1 / 3) * max_y_value**3 * (last_fit[0] - new_fit[0])
+                + (1 / 2) * max_y_value**2 * (last_fit[1] - new_fit[1])
+                + max_y_value * (last_fit[2] - new_fit[2])
+            )
+            - (
+                (1 / 3) * min_y_value**3 * (last_fit[0] - new_fit[0])
+                + (1 / 2) * min_y_value**2 * (last_fit[1] - new_fit[1])
+                + min_y_value * (last_fit[2] - new_fit[2])
+            )
+        )
+        / (max_y_value - min_y_value)
+    )
+
+
+def calculate_mean_squared_error(last_fit: NDArray[np.float64], new_fit: NDArray[np.float64], height: int) -> float:
+    y_values = np.linspace(0, height - 1, height)
+
+    return np.sum(
+        (
+            ((last_fit[0] * y_values**2) + (last_fit[1] * y_values) + last_fit[2])
+            - ((new_fit[0] * y_values**2) + (new_fit[1] * y_values) + new_fit[2])
+        )
+        ** 2
+    ) / len(y_values)
