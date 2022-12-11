@@ -23,7 +23,6 @@ def display_video(path: str) -> None:
     left_fit_indices = None
     right_fit_indices = None
 
-    padding = 0
     roi = None
     destination_format = None
 
@@ -48,10 +47,10 @@ def display_video(path: str) -> None:
             if destination_format is None:
                 destination_format = np.array(
                     [
-                        [padding, 0],  # Top-left corner
-                        [padding, int(height / 2)],  # Bottom-left corner
-                        [int(width / 2) - padding, int(height / 2)],  # Bottom-right corner
-                        [int(width / 2) - padding, 0],  # Top-right corner
+                        [0, 0],  # Top-left corner
+                        [0, int(height / 2)],  # Bottom-left corner
+                        [int(width / 2), int(height / 2)],  # Bottom-right corner
+                        [int(width / 2), 0],  # Top-right corner
                     ],
                     np.float32,
                 )
