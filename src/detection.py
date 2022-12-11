@@ -6,36 +6,21 @@ from numpy.typing import NDArray
 from src.pre_processing import calculate_histogram, get_weighted_histogram
 
 
-# TODO add types
 # TODO update docstring
-# TODO adjust parameters to take histogram instead of NDArray[np.uint8]
-# TODO adjust return values after changing parameter
 def histogram_peak(histogram: NDArray[np.uint32], min_x: int, max_x: int) -> int:
-    """Gets maxima of calculated histogram to detect position of left and right lines in image.
+    """Returns maximum of histogram in provided interval
 
     Returns
     -------
     _type_
         x-coordinates of histogram peak for left and right line.
     """
-    # TODO: add padding to middle
     peak_x = int(np.argmax(histogram[min_x:max_x]))
 
-    # (x coordinate of left peak, x coordinate of right peak)
     return peak_x + min_x
 
 
-# if left_last_fit is None:
-#     fit_window()
-# else:
-#     get_proximity_values()
-#     if proximity_pixel_count < threshold:
-#         fit_window()
-
-# get_proximity_values()
-# proximity_fit()
-
-
+# TODO add docstring
 def get_fit(
     param_image: NDArray[np.uint8],
     last_left_fit: NDArray[np.float64] | None = None,
@@ -47,26 +32,30 @@ def get_fit(
     NDArray[np.float64] | None, NDArray[np.float64] | None, NDArray[np.float64] | None, NDArray[np.float64] | None
 ]:
 
+    # copy image to avoid manipulation of input image
+    # TODO possibly remove if TODO in line 300 is removed
     image = param_image.copy()
 
+    # backup fits from last frame. Needed if new fit differs too much
     backup_left_fit = last_left_fit
     backup_right_fit = last_right_fit
 
     width = image.shape[1]
 
+    # define how many windows are created
     window_amount = 10
 
+    # define size of proximity
     proximity = int((1 / 24) * width)
 
-    # Find the x and y coordinates of all the nonzero
-    # (i.e. white) pixels in the frame.
+    # Get all white pixel in image
     white_pixel = image.nonzero()
     white_pixel_indices_x = np.array(white_pixel[1])
     white_pixel_indices_y = np.array(white_pixel[0])
 
     histogram = calculate_histogram(image, window_amount, plot=plot)
-    # histogram = get_weighted_histogram(histogram)
 
+    # minimum pixels required inside proximity to only fit with proximity
     proximity_pixel_count_threshold = 400
 
     left_lane_indices = None
@@ -76,6 +65,7 @@ def get_fit(
     new_right_fit = None
 
     if last_left_fit is not None:
+        # calculate amount of white pixel in proximity of last left fit
         left_lane_indices = (
             (
                 white_pixel_indices_x
@@ -101,12 +91,12 @@ def get_fit(
         left_proximity_values_x = white_pixel_indices_x[left_lane_indices]
         left_proximity_values_y = white_pixel_indices_y[left_lane_indices]
 
-        # print("left proximity count:", len(left_proximity_values_x))
-
+        # if not enough pixels are in proximity, calculate new fit with windows
         if len(left_proximity_values_x) < proximity_pixel_count_threshold:
             last_left_fit = None
 
     if last_right_fit is not None:
+        # calculate amount of white pixel in proximity of last right fit
         right_lane_indices = (
             (
                 white_pixel_indices_x
@@ -132,14 +122,14 @@ def get_fit(
         right_proximity_values_x = white_pixel_indices_x[right_lane_indices]
         right_proximity_values_y = white_pixel_indices_y[right_lane_indices]
 
-        # print("right proximity count:", len(right_proximity_values_x))
-        # print(min(right_proximity_values_x), max(right_proximity_values_x))
-
+        # if not enough pixels are in proximity, calculate new fit with windows
         if len(right_proximity_values_x) < proximity_pixel_count_threshold:
             last_right_fit = None
 
+    # print for both sides if windows are calculated
     # print(f"left_window: {last_left_fit is None}; right:window: {last_right_fit is None}")
 
+    # calculate windows for left side if necessary
     calculate_left_window = False
     if last_left_fit is None:
         calculate_left_window = True
@@ -153,6 +143,7 @@ def get_fit(
             window_amount=window_amount,
         )
 
+    # calculate windows for right side if necessary
     calculate_right_window = False
     if last_right_fit is None:
         calculate_right_window = True
@@ -166,13 +157,10 @@ def get_fit(
             window_amount=window_amount,
         )
 
-    # print("Calculate proximity")
-
     new_left_fit_indices = None
     new_right_fit_indices = None
 
-    # if last_left_fit is not None:
-    # Store left lane pixel indices
+    # if last_right_fit is None, calculating right windows failed
     if last_left_fit is not None:
         if calculate_left_window:
             left_lane_indices = (
@@ -198,9 +186,7 @@ def get_fit(
 
         new_left_fit, new_left_fit_indices = get_proximity_fit(image, left_proximity_values_x, left_proximity_values_y)
 
-    # if last_right_fit is None, calculating windows failed
-    # if last_right_fit is not None:
-    # Store right lane pixel indices
+    # if last_right_fit is None, calculating right windows failed
     if last_right_fit is not None:
         if calculate_right_window:
             right_lane_indices = (
@@ -224,14 +210,12 @@ def get_fit(
         right_proximity_values_x = white_pixel_indices_x[right_lane_indices]
         right_proximity_values_y = white_pixel_indices_y[right_lane_indices]
 
+        # calculate right proximity fit
         new_right_fit, new_right_fit_indices = get_proximity_fit(
             image, right_proximity_values_x, right_proximity_values_y
         )
 
-    # if all(elem is not None for elem in [backup_left_fit, new_left_fit, backup_right_fit, new_right_fit]):
-    #     print("left:", (backup_left_fit - new_left_fit).astype(int))
-    #     print("rigth:", (backup_right_fit - new_right_fit).astype(int))
-
+    # load left fit backup if proximity fit failed or changed too much
     if backup_left_fit is not None and (
         new_left_fit is None
         or abs(new_left_fit[1] - backup_left_fit[1]) > 4
@@ -240,6 +224,7 @@ def get_fit(
         new_left_fit = backup_left_fit
         new_left_fit_indices = last_left_fit_indices
 
+    # load right fit backup if proximity fit failed or changed too much
     if backup_right_fit is not None and (
         new_right_fit is None
         or abs(new_right_fit[1] - backup_right_fit[1]) > 4
@@ -249,6 +234,7 @@ def get_fit(
         new_right_fit_indices = last_right_fit_indices
 
     if plot is True:
+        # plot relevant results if requested
         plt.imshow(image, cmap="gray")
 
         height = image.shape[0]
@@ -272,6 +258,7 @@ def get_fit(
     return new_left_fit, new_left_fit_indices, new_right_fit, new_right_fit_indices
 
 
+# TODO add docstring
 def get_window_fit(
     histogram: NDArray[np.uint32],
     historgram_min_x: int,
@@ -284,31 +271,35 @@ def get_window_fit(
 
     height, width = image.shape
 
+    # define minimum white pixel required in window for repositioning
     min_pixel_in_window = int((1 / 48) * width)
 
     # Set dimensions of the sliding windows
     window_width = int((1 / 6) * width)
     window_height = int(height / window_amount)
 
+    # calculate histogram peaksfor lowest window
     histrogram_padding = int(window_width / 8)
     if historgram_min_x == 0:
         current_x = histogram_peak(histogram, historgram_min_x, histogram_max_x - histrogram_padding)
     else:
         current_x = histogram_peak(histogram, historgram_min_x + histrogram_padding, histogram_max_x)
 
+    # list of white pixel in any window
     ind_in_any_window = []
 
     for window in range(window_amount):
 
-        # Identify window boundaries in x and y (and right and left)
+        # set x and y coordinates of window
         window_min_x = int(current_x - (window_width / 2))
         window_max_x = int(current_x + (window_width / 2))
         window_min_y = int(height - (window + 1) * window_height)
         window_max_y = int(height - window * window_height)
 
+        # TODO possibly remove
         cv2.rectangle(image, (window_min_x, window_min_y), (window_max_x, window_max_y), (255, 255, 255), 2)
 
-        # Identify the nonzero pixels in x and y within the window
+        # get white pixel within window
         white_x_ind_in_window = (
             (white_pixel_indices_y >= window_min_y)
             & (white_pixel_indices_y < window_max_y)
@@ -316,41 +307,42 @@ def get_window_fit(
             & (white_pixel_indices_x < window_max_x)
         ).nonzero()[0]
 
-        # Append these indices to the lists
+        # append to list of white pixel
         ind_in_any_window.append(white_x_ind_in_window)
 
-        # If you found > minpix pixels, recenter next window on mean position
+        # set center of next window if enough white pixel are found
         if len(white_x_ind_in_window) > min_pixel_in_window:
             current_x = int(np.mean(white_pixel_indices_x[white_x_ind_in_window]))
 
-    # Concatenate the arrays of indices
+    # create one list with all white pixel in any window
     ind_in_any_window = np.concatenate(ind_in_any_window)
 
-    # Extract the pixel coordinates for the left and right lane lines
+    # extract pixel coordinates for the polyfit
     x_values = white_pixel_indices_x[ind_in_any_window]
     y_values = white_pixel_indices_y[ind_in_any_window]
 
-    # Fit a second order polynomial curve to the pixel coordinates for
-    # the left and right lane lines
+    # if no values are found in any window, return without fit
     if len(x_values) == 0:
         return None
 
+    # get 2nd degree fit for white pixel in any window
     polynomial: NDArray[np.float64] = np.polyfit(y_values, x_values, 2).astype(np.float64)
 
     return polynomial
 
 
+# TODO add docstring
 def get_proximity_fit(
     image: NDArray[np.uint8],
-    # fit: NDArray[np.float64],
     proximity_pixel_values_x: NDArray[np.intp],
     proximity_pixel_values_y: NDArray[np.intp],
 ) -> tuple[NDArray[np.float64], NDArray[np.float64]] | None:
-    # Fit a second order polynomial curve to each lane line
+
+    # if no values are found in the proximity, return without fit
     if len(proximity_pixel_values_x) == 0:
         return None
 
-    # print(np.unique(y_values), np.unique(x_values))
+    # get 2nd degree fit for white pixel in last fit
     polynomial = np.polyfit(proximity_pixel_values_y, proximity_pixel_values_x, 2)
 
     ploty = np.linspace(0, image.shape[0] - 1, image.shape[0])

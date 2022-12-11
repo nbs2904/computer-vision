@@ -17,8 +17,6 @@ from src.segmentation import get_roi, overlay_lane_lines
 
 def display_video(path: str) -> None:
 
-    print("Started displaying video")
-
     left_fit = None
     right_fit = None
     left_fit_indices = None
@@ -37,9 +35,11 @@ def display_video(path: str) -> None:
 
     video = cv2.VideoCapture(path)
 
-    start_time = time()
     elapsed = int()
     cv2.namedWindow("ca1", 0)
+
+    print("Started displaying video")
+
     while video.isOpened():
 
         ret, image = video.read()
@@ -77,6 +77,7 @@ def display_video(path: str) -> None:
 
             if inverse_matrix is None:
                 transformation_matrix, inverse_matrix = get_transformation_matrices(roi, destination_format)
+                start_time = time()
 
             # TODO only transform image
             transformed_image = perspective_transform(
