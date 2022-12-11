@@ -55,7 +55,7 @@ def highlight_lines(
             cur_light_channel_strip, thresh=190, maxval=255, type=cv2.THRESH_BINARY
         )
 
-        if 70 < cur_light_channel_strip_mean < 140:
+        if 65 < cur_light_channel_strip_mean < 140:
             _, saturation_channel_strip_binary = cv2.threshold(
                 cur_saturation_channel_strip, thresh=50, maxval=255, type=cv2.THRESH_BINARY
             )
@@ -166,14 +166,21 @@ def highlight_lines(
         light_channel_binary_blurred: NDArray[np.uint8] = cv2.GaussianBlur(
             light_channel_binary, ksize=(gaussian_ksize, gaussian_ksize), sigmaX=0
         )
+        # cv2.imshow("light_binary_blurred", light_channel_binary_blurred)
         light_channel_canny: NDArray[np.uint8] = cv2.Canny(light_channel_binary_blurred, threshold1=10, threshold2=200)
 
-        cv2.imshow("canny", light_channel_canny)
+        # cv2.imshow("canny", light_channel_canny)
+
+        original_canny: NDArray[np.uint8] = cv2.Canny(image, threshold1=190, threshold2=230)
+        # cv2.imshow("original_canny", original_canny)
+
         ### Combine the possible lane lines with the possible lane line edges #####
         # If you show rs_binary visually, you'll see that it is not that different
         # from this return value. The edges of lane lines are thin lines of pixels.
 
-        highlighted_image = cv2.bitwise_or(highlighted_image, light_channel_canny).astype(np.uint8)
+        highlighted_image = cv2.bitwise_or(highlighted_image, original_canny).astype(np.uint8)
+        # cv2.imshow("result_image", highlighted_image)
+
         # self.lane_line_markings = cv2.bitwise_and(rs_binary, sxbinary.astype(np.uint8))
 
         # cv2.imshow("s_binary", s_binary)
@@ -226,6 +233,7 @@ def highlight_lines(
         cv2.destroyAllWindows()
 
     return highlighted_image
+    # return original_canny
 
 
 def get_transformation_matrices(
@@ -339,3 +347,13 @@ def calculate_histogram(image: NDArray[np.uint8], sliding_window_count: int, plo
         plt.show()
 
     return histogram
+
+
+def get_weighted_histogram(histogram: NDArray[np.uint32]) -> NDArray[np.uint32]:
+    linear_left = np.linspace(0.5, 1, int(histogram.shape[0] / 2))
+    linear_right = np.linspace(1, 0.5, int(histogram.shape[0] / 2))
+    linear = np.concatenate((linear_left, linear_right))
+
+    new_hist = histogram * linear
+
+    return new_hist.astype(np.uint32)

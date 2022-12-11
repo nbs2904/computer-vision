@@ -31,13 +31,13 @@ def display_image(path: str) -> None:
         dtype=np.int32,
     )
 
-    draw_roi(original_image, roi.astype(np.int32), plot=True)
+    draw_roi(original_image, roi.astype(np.int32), plot=False)
     highlighted_image = highlight_lines(original_image, roi, apply_edge_detection=True, plot=False)
 
     transformation_matrix, inverse_matrix = get_transformation_matrices(roi, destination_format.astype(np.float32))
     transformed_image = perspective_transform(highlighted_image, transformation_matrix, destination_format, plot=False)
 
-    _, left_fit_indices, _, right_fit_indices = get_fit(transformed_image, plot=True)
+    _, left_fit_indices, _, right_fit_indices = get_fit(transformed_image, plot=False)
 
     if left_fit_indices is not None and right_fit_indices is not None:
 

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
 
-from src.pre_processing import calculate_histogram
+from src.pre_processing import calculate_histogram, get_weighted_histogram
 
 
 # TODO add types
@@ -66,6 +66,7 @@ def get_fit(
     white_pixel_indices_y = np.array(white_pixel[0])
 
     histogram = calculate_histogram(image, window_amount, plot=plot)
+    # histogram = get_weighted_histogram(histogram)
 
     proximity_pixel_count_threshold = 400
 
