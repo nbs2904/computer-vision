@@ -21,7 +21,9 @@ This project was developed by a team of 3 students as part of the "Digitale-Bild
 ### Additional Tasks
 
 -   [x] Relevent lane markings are highlighted on the _challenge_video_
--   [x] Relevant lane markings are highlighted on each _KITTI_ Dataset image
+-   [x] Relevant lane markings are highlighted on each _KITTI_ image
+    -   The region of interest had to be adapted to the _KITTI_ camera perspective
+    -   Edge detection is applied to _KITTI_ to detect lanes withouth any markings
 
 ---
 
@@ -61,6 +63,18 @@ This project was developed by a team of 3 students as part of the "Digitale-Bild
 
 ---
 
+## :computer: Usage
+
+In order to run the project, execute the `main.py` in the root directory of the project:
+
+```bash
+poetry run main.py
+```
+
+To change which image / video to process, simply change the path in the `main.py` file
+
+---
+
 ## :computer: Applied Techniques
 
 In the following section it will be explained, which techniques are subsequently applied to the images and videos in order to detect lane markings.
@@ -75,13 +89,13 @@ Once the image has been undisorted, the next step is to segment the image. This 
 Below is an example for a _KITTI_ image:
 
 <div style="text-align:center">
-    <img src="img/roi.jpg" alt="Region of interest" width="500">
+    <img src="https://github.com/nbs2904/computer-vision/raw/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/roi.jpg" alt="Region of interest" width="500">
 </div>
 
 ### Color Channel Thresholding
 
 <div style="text-align:center">
-    <img src="img/hsl-color-space.png" alt="HSL Color Space" width="300">
+    <img src="https://github.com/nbs2904/computer-vision/raw/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/hsl-color-space.png" alt="HSL Color Space" width="300">
 </div>
 
 In order to highlight line markings and remove unwanted colors. Thresholds are applied to different channels. The following channels are used:
@@ -91,7 +105,7 @@ In order to highlight line markings and remove unwanted colors. Thresholds are a
 -   `S` of the `HSL` space: Additionally, Since not all lane markings are white, the saturation channel is used to highlight yellow lines as they often have a higher saturation value than darker asphalt.
 -   `Canny`: Some pictures do not contain line markings, therefore the Canny edge algorithm is used on the original transformed image to detect edges.
 
-> :exclamation: Canny edge detection was added to allow lane detection on all `KITTI` images, especially the last one.
+> :bulb: Canny edge detection was added to allow lane detection on all `KITTI` images, especially the last one.
 
 Once the thresholds have been applied to each channel, the results are combined as follow:
 
@@ -104,10 +118,10 @@ Once the thresholds have been applied to each channel, the results are combined 
 
 ```
 
-> :exclamation: However, due to some light changes in the _challenge_video_ it was difficult to find certain thresholds fitting the entire image. Therefore, before applying thresholding, the image is seperated into multiple stripes. Then different thresholds are used depending on the mean lightness value of each strip. Once this is done, the results are concetaned, as can be seen in the image below:
+> :bulb: However, due to some light changes in the _challenge_video_ it was difficult to find certain thresholds fitting the entire image. Therefore, before applying thresholding, the image is seperated into multiple stripes. Then different thresholds are used depending on the mean lightness value of each strip. Once this is done, the results are concetaned, as can be seen in the image below:
 
 <div style="text-align:center">
-    <img src="img/strip_visualization.png" alt="Image Strips" width="500">
+    <img src="https://github.com/nbs2904/computer-vision/raw/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/strip_visualization.png" alt="Image Strips" width="500">
 </div>
 
 ### Perspective Transformation
@@ -115,7 +129,7 @@ Once the thresholds have been applied to each channel, the results are combined 
 Has the region of interest been determined and thresholds applied to the image. The transformation matrix and inverse transformation matrix are calculated. The transformation matrix is then used with the `cv2.warpPerspective` method to transform the image to a bird's eye view. An example is given below:
 
 <div style="text-align:center">
-    <img src="img/transformed.jpg" alt="Transformed" width="500">
+    <img src="https://github.com/nbs2904/computer-vision/raw/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/transformed.jpg" alt="Transformed" width="500">
 </div>
 
 ### Polynomial Fitting
@@ -124,6 +138,8 @@ After transforming the region of interest, the best 2nd degree polynomial can be
 
 Lastly, if the `mean squared error` between the newly calculated polynomial and the polynomial used for the last frame passes a certain threshold, the new calculated fit is discarded, because this is an indicator for a misfitted polynomial.
 
+> :bulb: Initially, the attempt was to use the `integral` beween the two polynomials to determine an error threshold, however the `mean squared error` was found to be more reliable.
+
 #### Sliding Windows
 
 This technique divides the image into multiple small regions of interest (windows), which have a fixed width, height and y-location, but can move along the x-axis. In our project, we use ten windows, which means that each window has the height of 1/10th of the images' height, with every y-coordinate having exactly one corresponding window.
@@ -131,7 +147,7 @@ This technique divides the image into multiple small regions of interest (window
 The first step of this technique is to calculate a histogram which holds the amount of white pixel per x-coordinate. Next, the peak of this histogram is used as the starting x-coordinate for the lowest window. Next, the average x location of all white pixel within this window is calculated. This average is the x-location of the window above. This process is repeated until all x-locations for all windows are determined. Next, the polynomial fit is calculated based on all white pixel which are in any window.
 
 <div style="text-align:center">
-    <img src="img/hist_without_fits.jpg" alt="Sliding Windows" width="500">
+    <img src="https://github.com/nbs2904/computer-vision/raw/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/hist_without_fits.jpg" alt="Sliding Windows" width="500">
 </div>
 
 #### Proximity Fitting
@@ -141,7 +157,7 @@ Once the polynomial for the sliding windows has been calculated, a second polyom
 In the example below the green line marks the first polynomial which was fitted using the sliding windows. The yellow borders demonstrate the close proximity of the first polynomial. The white pixels inside the yellow borders are used to calculate the second polynomial, which is displayed in red.
 
 <div style="text-align:center">
-    <img src="img/hist_with_fits.jpg" alt="Sliding Windows & Polynomials" width="500">
+    <img src="https://raw.githubusercontent.com/nbs2904/computer-vision/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/hist_with_fits.jpg" alt="Sliding Windows & Polynomials" width="500">
 </div>
 
 #### Increasing performance
@@ -153,12 +169,9 @@ The perormance of polynomial fitting can be increased if it is applied to a vide
 After the polynomials for both lines are calculated, the result has to be plotted to the undistorted image. To achieve this, we first calculate the x-coordinate of every y-coordinate for both polynomials. Next, these points are transformed back using the inverse matrix from the transformation step. Lastly, the area between all points is filled with a green color to visualize the resulting detected lane.
 
 <div style="text-align:center">
-    <img src="img/output.jpg" alt="Plotting" width="500">
+    <img src="https://github.com/nbs2904/computer-vision/raw/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/output.jpg" alt="Plotting" width="500">
 </div>
 
----
+<!-- ---
 
-## Lessons Learned
-
-<!-- TODO deactivate mypy for submission -->
-<!-- TODO host mkdocs -->
+## Lessons Learned -->
