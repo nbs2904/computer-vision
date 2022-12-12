@@ -1,0 +1,858 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Spurerkennung Digitale Bildverarbeitung DHBW Stuttgart Informatik">
+      
+      
+        <meta name="author" content="Nick Schroeder, Stephan auf der Landwehr, and Fabian Thome">
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+    
+    
+      
+        <title>Readme - Digitale Bildverarbeitung - Spurerkennung</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.975780f9.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.2505c338.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="yellow" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#abstract" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="Digitale Bildverarbeitung - Spurerkennung" class="md-header__button md-logo" aria-label="Digitale Bildverarbeitung - Spurerkennung" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M222.4 74.1c5.6-16.8-3.5-34.9-20.2-40.5s-34.9 3.5-40.5 20.2l-128 384c-5.6 16.8 3.5 34.9 20.2 40.5s34.9-3.5 40.5-20.2l128-384zm70.9-41.7c-17.4-2.9-33.9 8.9-36.8 26.3l-64 384c-2.9 17.4 8.9 33.9 26.3 36.8s33.9-8.9 36.8-26.3l64-384c2.9-17.4-8.9-33.9-26.3-36.8zM384 32c-17.7 0-32 14.3-32 32v384c0 17.7 14.3 32 32 32s32-14.3 32-32V64c0-17.7-14.3-32-32-32z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Digitale Bildverarbeitung - Spurerkennung
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Readme
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="yellow" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+            </label>
+          
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="yellow" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/nbs2904/computer-vision" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nbs2904/computer-vision
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="Digitale Bildverarbeitung - Spurerkennung" class="md-nav__button md-logo" aria-label="Digitale Bildverarbeitung - Spurerkennung" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M222.4 74.1c5.6-16.8-3.5-34.9-20.2-40.5s-34.9 3.5-40.5 20.2l-128 384c-5.6 16.8 3.5 34.9 20.2 40.5s34.9-3.5 40.5-20.2l128-384zm70.9-41.7c-17.4-2.9-33.9 8.9-36.8 26.3l-64 384c-2.9 17.4 8.9 33.9 26.3 36.8s33.9-8.9 36.8-26.3l64-384c2.9-17.4-8.9-33.9-26.3-36.8zM384 32c-17.7 0-32 14.3-32 32v384c0 17.7 14.3 32 32 32s32-14.3 32-32V64c0-17.7-14.3-32-32-32z"/></svg>
+
+    </a>
+    Digitale Bildverarbeitung - Spurerkennung
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/nbs2904/computer-vision" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nbs2904/computer-vision
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_1" type="checkbox" id="__nav_1" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_1">
+          Overview
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Overview" data-md-level="1">
+        <label class="md-nav__title" for="__nav_1">
+          <span class="md-nav__icon md-icon"></span>
+          Overview
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Readme
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        Readme
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#abstract" class="md-nav__link">
+    Abstract
+  </a>
+  
+    <nav class="md-nav" aria-label="Abstract">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#credit" class="md-nav__link">
+    Credit
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project-requirements" class="md-nav__link">
+    Project Requirements
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-tasks" class="md-nav__link">
+    Additional Tasks
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements-installation" class="md-nav__link">
+    Requirements &amp; Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#applied-techniques" class="md-nav__link">
+    Applied Techniques
+  </a>
+  
+    <nav class="md-nav" aria-label="Applied Techniques">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#camera-calibration" class="md-nav__link">
+    Camera Calibration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image-segmentation" class="md-nav__link">
+    Image Segmentation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#color-channel-thresholding" class="md-nav__link">
+    Color Channel Thresholding
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#perspective-transformation" class="md-nav__link">
+    Perspective Transformation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polynomial-fitting" class="md-nav__link">
+    Polynomial Fitting
+  </a>
+  
+    <nav class="md-nav" aria-label="Polynomial Fitting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sliding-windows" class="md-nav__link">
+    Sliding Windows
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proximity-fitting" class="md-nav__link">
+    Proximity Fitting
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#increasing-performance" class="md-nav__link">
+    Increasing performance
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plotting" class="md-nav__link">
+    Plotting
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lessons-learned" class="md-nav__link">
+    Lessons Learned
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="license/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Documentation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Documentation" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Documentation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="calibration/" class="md-nav__link">
+        Calibration
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="segmentation/" class="md-nav__link">
+        Segmentation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pre_processing/" class="md-nav__link">
+        Pre-Processing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="detection/" class="md-nav__link">
+        Detection
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="image/" class="md-nav__link">
+        Image
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="video/" class="md-nav__link">
+        Video
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/nbs2904/computer-vision/edit/master/docs/index.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<div style="text-align:center">
+    <h1>Digitale Bildverarbeitung</h1>
+    <a href="https://nbs2904.github.io/computer-vision/">Documentation</a> |
+    <a href="https://github.com/nbs2904/computer-vision">GitHub</a>
+</div>
+
+<hr />
+<h2 id="abstract"><img alt="📄" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f4c4.svg" title=":page_facing_up:" /> Abstract</h2>
+<p>This project was developed by a team of 3 students as part of the "Digitale-Bildverarbeitung" course at <a href="https://www.dhbw-stuttgart.de/">DHBW Stuttgart</a>. The goal was to implement an image &amp; video processing application in Python. The application should be able to process frames to detect lanes and highlight them in the original image.</p>
+<h3 id="credit"><img alt="🚨" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f6a8.svg" title=":rotating_light:" /> Credit</h3>
+<ul>
+<li>Credit has to be given to <a href="https://automaticaddison.com/the-ultimate-guide-to-real-time-lane-detection-using-opencv/">Addison Sears-Collins</a> who has published an easy to understand guide for the sliding window technique used in this project.</li>
+</ul>
+<h3 id="project-requirements">Project Requirements</h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Camera calibration of <em>Udacity</em> Images &amp; Videos</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Image segmentation &amp; Bird's Eye View transformation</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Applying thresholds to different color spaces to highlight relevant lane markings</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Curve / Polynomial fitting and plotting on image</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Video processing &gt; 20 FPS</li>
+</ul>
+<h3 id="additional-tasks">Additional Tasks</h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Relevent lane markings are highlighted on the <em>challenge_video</em></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Relevant lane markings are highlighted on each <em>KITTI</em> image<ul>
+<li>The region of interest had to be adapted to the <em>KITTI</em> camera perspective</li>
+<li>Edge detection is applied to <em>KITTI</em> to detect lanes withouth any markings</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Steps for increased performance<ul>
+<li>Region is transormed to a smaller image, reducing its size by a factor of 4</li>
+<li>If enough white pixels are in close proximity to the previous polynomial, the sliding window technique is not applied.
+    Since the proximity is narrower than the sliding windows, fitting the polynomial is faster, increasing performance.</li>
+<li>Calculations, which can be reused are performed at the beginning of a video and reused for each frame. Such as <code>transform_matrix</code> and <code>camera calibration</code>.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="requirements-installation"><img alt="🚀" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f680.svg" title=":rocket:" /> Requirements &amp; Installation</h2>
+<blockquote>
+<p><img alt="🐍" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f40d.svg" title=":snake:" /> <img alt="⚠" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/26a0.svg" title=":warning:" /> Python 3.10 is required</p>
+</blockquote>
+<ul>
+<li>
+<p>Using <a href="https://python-poetry.org/"><code>Poetry</code></a></p>
+<ol>
+<li>
+<p>Install Poetry</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Linux, macOS, and Windows (WSL)</span>
+curl -sSL https://install.python-poetry.org <span class="p">|</span> python3 -
+
+<span class="c1"># Windows (PowerShell)</span>
+<span class="o">(</span>Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing<span class="o">)</span>.Content <span class="p">|</span> py -
+</code></pre></div>
+</li>
+<li>
+<p>Install dependencies</p>
+<div class="highlight"><pre><span></span><code>poetry install
+</code></pre></div>
+</li>
+<li>
+<p>Running commands</p>
+<div class="highlight"><pre><span></span><code>poetry run &lt;command&gt;
+</code></pre></div>
+</li>
+</ol>
+</li>
+<li>
+<p>Using <code>pip</code></p>
+<div class="highlight"><pre><span></span><code>pip install -r requirements.txt
+</code></pre></div>
+</li>
+</ul>
+<hr />
+<h2 id="usage"><img alt="💻" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f4bb.svg" title=":computer:" /> Usage</h2>
+<p>In order to run the project, execute the <code>main.py</code> in the root directory of the project:</p>
+<div class="highlight"><pre><span></span><code>poetry run main.py
+</code></pre></div>
+<p>To change which image / video to process, simply change the path in the <code>main.py</code> file</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>The results for each image &amp; video can be found in the <code>data/output</code> directory.</p>
+</div>
+<hr />
+<h2 id="applied-techniques"><img alt="💻" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f4bb.svg" title=":computer:" /> Applied Techniques</h2>
+<p>In the following section it will be explained, which techniques are subsequently applied to the images and videos in order to detect lane markings.</p>
+<h3 id="camera-calibration">Camera Calibration</h3>
+<p>For the <em>Udacity</em> images &amp; videos it is required to undistort the images. This is done by using the <code>cv2.calibrateCamera()</code> function. The calibration is achieved by using the provided chessboard images. The chessboard images are used to calculate the camera matrix and distortion coefficients. The camera matrix and distortion coefficients are then used to undistort the images.</p>
+<h3 id="image-segmentation">Image Segmentation</h3>
+<p>Once the image has been undisorted, the next step is to segment the image. This is done by using the <code>cv2.getPerspectiveTransform()</code> function. The function takes the region of interest &amp; destination format points as parameters. The region of interest points are the points of the original image, which should be transformed. The format of the region of interest varies between <em>Udacity</em> images &amp; <em>KITTI</em> images.
+Below is an example for a <em>KITTI</em> image:</p>
+<div style="text-align:center">
+    <img src="https://github.com/nbs2904/computer-vision/raw/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/roi.jpg" alt="Region of interest" width="500">
+</div>
+
+<h3 id="color-channel-thresholding">Color Channel Thresholding</h3>
+<div style="text-align:center">
+    <img src="https://github.com/nbs2904/computer-vision/raw/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/hsl-color-space.png" alt="HSL Color Space" width="300">
+</div>
+
+<p>In order to highlight line markings and remove unwanted colors. Thresholds are applied to different channels. The following channels are used:</p>
+<ul>
+<li><code>R</code>: The red channel of the originial "BGR" color space is used since some line markings are yellow, therefore having a relatively high red value. The green channel was not used since green colors are more likely to be present on the side of the road, adding unwanted noise.</li>
+<li><code>L</code> of the <code>HSL</code> space: As lane markings usually have a higher lightness value, compared to the darker asphalt, this channel is used to improve visibility of white lines.</li>
+<li><code>S</code> of the <code>HSL</code> space: Additionally, Since not all lane markings are white, the saturation channel is used to highlight yellow lines as they often have a higher saturation value than darker asphalt.</li>
+<li><code>Canny</code>: Some pictures do not contain line markings, therefore the Canny edge algorithm is used on the original transformed image to detect edges.</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Canny edge detection was added to allow lane detection on all <code>KITTI</code> images, especially the last one.</p>
+</div>
+<p>Once the thresholds have been applied to each channel, the results are combined as follow:</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># If edge detection is not used</span>
+    <span class="n">cv2</span><span class="o">.</span><span class="n">bitwise_or</span><span class="p">(</span> <span class="n">cv2</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">S</span><span class="p">),</span> <span class="n">L</span><span class="p">)</span>
+
+    <span class="c1"># If edge detection is used</span>
+    <span class="n">cv2</span><span class="o">.</span><span class="n">bitwise_or</span><span class="p">(</span> <span class="n">cv2</span><span class="o">.</span><span class="n">bitwise_or</span><span class="p">(</span> <span class="n">cv2</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">S</span><span class="p">),</span> <span class="n">L</span><span class="p">),</span> <span class="n">Canny</span> <span class="p">)</span>
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>However, due to some light changes in the <em>challenge_video</em> it was difficult to find certain thresholds fitting the entire image. Therefore, before applying thresholding, the image is seperated into multiple stripes. Then different thresholds are used depending on the mean lightness value of each strip. Once this is done, the results are concetaned, as can be seen in the image below:</p>
+</div>
+<div style="text-align:center">
+    <img src="https://github.com/nbs2904/computer-vision/raw/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/strip_visualization.png" alt="Image Strips" width="500">
+</div>
+
+<h3 id="perspective-transformation">Perspective Transformation</h3>
+<p>After the region of interest has been determined and thresholds have been applied to the image, the transformation matrix and inverse transformation matrix are calculated. The transformation matrix is then used with the <code>cv2.warpPerspective</code> method to transform the image to a bird's eye view. An example is given below:</p>
+<div style="text-align:center">
+    <img src="https://github.com/nbs2904/computer-vision/raw/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/transformed.jpg" alt="Transformed" width="500">
+</div>
+
+<h3 id="polynomial-fitting">Polynomial Fitting</h3>
+<p>After transforming the region of interest, the best second degree polynomial can be determined. To achieve this, the sliding window technique is applied to the transformed image to calculate a polynomial for the left and right line. After that, the polynomial is adjusted based on its proximity to fit the line markings better.</p>
+<p>Lastly, if the <code>mean squared error</code> between the newly calculated polynomial and the polynomial used for the last frame pass a certain threshold, the new calculated fit is discarded, because this is an indicator for a misfitted polynomial.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Initially, the attempt was to use the <code>integral</code> beween the two polynomials to determine an error threshold, however the <code>mean squared error</code> was found to be more reliable.</p>
+</div>
+<h4 id="sliding-windows">Sliding Windows</h4>
+<p>This technique divides the image into multiple small regions of interest (windows), which have a fixed width, height and y-location, but can move along the x-axis. In our project, we use ten windows, which means that each window has the height of 1/10th of the images' height, with every y-coordinate having exactly one corresponding window.</p>
+<p>The first step of this technique is to calculate a histogram which holds the amount of white pixel per x-coordinate. Next, the peak of this histogram is used as the starting x-coordinate for the lowest window. Next, the average x location of all white pixels within this window is calculated. This average is the x-location of the window above. This process is repeated until all x-locations for all windows are determined. Next, the polynomial fit is calculated based on all white pixels which are in any window.</p>
+<div style="text-align:center">
+    <img src="https://github.com/nbs2904/computer-vision/raw/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/hist_without_fits.jpg" alt="Sliding Windows" width="500">
+</div>
+
+<h4 id="proximity-fitting">Proximity Fitting</h4>
+<p>Once the polynomial for the sliding windows has been calculated, a second polynomial is fitted to the white pixels within a certain <code>proximity</code> to the first polynomial.</p>
+<p>In the example below the green line marks the first polynomial which was fitted using the sliding windows. The yellow borders demonstrate the close proximity of the first polynomial. The white pixels inside the yellow borders are used to calculate the second polynomial, which is displayed in red.</p>
+<div style="text-align:center">
+    <img src="https://raw.githubusercontent.com/nbs2904/computer-vision/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/hist_with_fits.jpg" alt="Sliding Windows & Polynomials" width="500">
+</div>
+
+<h4 id="increasing-performance">Increasing performance</h4>
+<p>The performance of polynomial fitting can be increased if it is applied to a video. If the polynomial from the last frame has enough white pixel in its proximity, the sliding window technique can be skipped and the polynomial is only adjusted based on its proximity. Additionally, since the proximity is narrower than the sliding windows, fitting the proximity polynomial is faster, as less white pixels have to be considered.</p>
+<h3 id="plotting">Plotting</h3>
+<p>After the polynomials for both lines are calculated, the result has to be plotted to the undistorted image. To achieve this, we first calculate the x-coordinate of every y-coordinate for both polynomials. Next, these points are transformed back using the inverse matrix from the transformation step. Lastly, the area between all points is filled with a green color to visualize the resulting detected lane.</p>
+<div style="text-align:center">
+    <img src="https://github.com/nbs2904/computer-vision/raw/ec03d69218538301c37f0f36daaa3c8bc90ff3a3/docs/img/output.jpg" alt="Plotting" width="500">
+</div>
+
+<hr />
+<h2 id="lessons-learned">Lessons Learned</h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Image processing is a versatile topic and can be applied to many different areas.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> We learned that it is quite difficult to develop one robust pipeline which works well for all images, rather than developing multiple approaches which work well for fixed / pre-defined scenarios.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> At one point making changes to certain parameters to improve line detection in one specific image, can have a negative impact on the detection of other images. Therefore its quite hard to find an optimal solution.</li>
+</ul>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      Last update:
+      2022-12-12
+    
+  </small>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var tab,labels=set.querySelector(".tabbed-labels");for(tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+      
+        
+        <a href="license/" class="md-footer__link md-footer__link--next" aria-label="Next: License" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              License
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.expand", "navigation.tracking", "navigation.top", "toc.integrate", "search.suggest", "search.highlight", "content.tabs.link"], "search": "assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      
+    
+    
+  </body>
+</html>
