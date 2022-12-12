@@ -1,4 +1,5 @@
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
 
@@ -55,7 +56,7 @@ def display_image(path: str) -> None:
         dtype=np.int32,
     )
 
-    draw_roi(calibrated_image, roi.astype(np.int32), plot=True)
+    image_roi = draw_roi(calibrated_image, roi.astype(np.int32), plot=False)
 
     # apply thresholding in different color spaces
     highlighted_image = highlight_lines(calibrated_image, apply_edge_detection=True, plot=False)
@@ -65,7 +66,7 @@ def display_image(path: str) -> None:
     transformed_image = perspective_transform(highlighted_image, transformation_matrix, destination_format, plot=False)
 
     # get indices of pixels that are in the proximity of tranformed image
-    _, left_fit_indices, _, right_fit_indices = get_fit(transformed_image, plot=False)
+    _, left_fit_indices, _, right_fit_indices = get_fit(transformed_image, plot=True)
 
     if left_fit_indices is not None and right_fit_indices is not None:
 
@@ -74,8 +75,31 @@ def display_image(path: str) -> None:
             calibrated_image, transformed_image, left_fit_indices, right_fit_indices, inverse_matrix
         )
 
-        # plot image with deteced lines
-        cv2.imshow("Output Image", output_image)
+        figure = plt.figure(figsize=(10, 8))
+
+        plot_image_roi = figure.add_subplot(2, 2, 1)
+        plot_image_roi.set_title("Region of Interest")
+        plot_image_roi.imshow(cv2.cvtColor(image_roi, cv2.COLOR_BGR2RGB))
+
+        plot_highlighted_image = figure.add_subplot(2, 2, 2)
+        plot_highlighted_image.set_title("Image with thresholds")
+        plot_highlighted_image.imshow(highlighted_image, cmap="gray")
+
+        plot_transformed_image = figure.add_subplot(2, 2, 3)
+        plot_transformed_image.set_title("Transformed Image")
+        plot_transformed_image.imshow(transformed_image, cmap="gray")
+
+        transformed_height = transformed_image.shape[0]
+        y_values = np.linspace(0, transformed_height - 1, transformed_height)
+        plot_transformed_image.plot(left_fit_indices, y_values, color="red", linewidth=4)
+        plot_transformed_image.plot(right_fit_indices, y_values, color="red", linewidth=4)
+
+        plot_output_image = figure.add_subplot(2, 2, 4)
+        plot_output_image.set_title("Output Image")
+        plot_output_image.imshow(cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB))
+
+        plt.show()
+
         while 1:
             if cv2.waitKey(0):
                 break

@@ -220,15 +220,13 @@ def perspective_transform(
     return transformed_image
 
 
-def calculate_histogram(image: NDArray[np.uint8], plot: bool = False) -> NDArray[np.uint32]:
+def calculate_histogram(image: NDArray[np.uint8]) -> NDArray[np.uint32]:
     """Calculate histogram containing the amount of white pixels per x value
 
     Parameters
     ----------
     image : NDArray[np.uint8]
         the image the histogram should be calculated for
-    plot : bool, optional
-        whether or not the result should be plotted, by default False
 
     Returns
     -------
@@ -241,16 +239,5 @@ def calculate_histogram(image: NDArray[np.uint8], plot: bool = False) -> NDArray
         image,
         axis=0,
     )
-
-    # plot histogram if requested
-    if plot is True:
-
-        figure, (ax1, ax2) = plt.subplots(2, 1)
-        figure.set_size_inches(10, 8)
-        ax1.imshow(image, cmap="gray")
-        ax1.set_title("Transformed Binary Image")
-        ax2.plot(histogram)
-        ax2.set_title("X column Histogram")
-        plt.show()
 
     return histogram

@@ -89,7 +89,7 @@ def get_fit(
     white_pixel_indices_x = np.array(white_pixel[1])
     white_pixel_indices_y = np.array(white_pixel[0])
 
-    histogram = calculate_histogram(image, plot=plot)
+    histogram = calculate_histogram(image)
 
     # minimum pixels required inside proximity to only fit with proximity
     proximity_pixel_count_threshold = 400
@@ -273,24 +273,38 @@ def get_fit(
 
     if plot is True:
         # plot relevant results if requested
-        plt.imshow(image, cmap="gray")
+        figure = plt.figure(figsize=(10, 8))
+
+        plot_sliding_windows = figure.add_subplot(2, 1, 1)
+        plot_sliding_windows.set_title("Sliding Windows")
+        plot_sliding_windows.imshow(image, cmap="gray")
+
+        plot_histogram = figure.add_subplot(2, 1, 2)
+        plot_histogram.set_title("X Column Histogram")
+        plot_histogram.plot(histogram)
 
         height = image.shape[0]
         y_values = np.linspace(0, height - 1, height)
 
         if last_left_fit is not None:
             window_left_fit_x = last_left_fit[0] * y_values**2 + last_left_fit[1] * y_values + last_left_fit[2]
-            plt.plot(window_left_fit_x, y_values, color="green", scalex=4)
+            plot_sliding_windows.plot(window_left_fit_x, y_values, color="green", linewidth=4)
         if last_right_fit is not None:
             window_right_fit_x = last_right_fit[0] * y_values**2 + last_right_fit[1] * y_values + last_right_fit[2]
-            plt.plot(window_right_fit_x, y_values, color="green", scalex=4)
-
+            plot_sliding_windows.plot(window_right_fit_x, y_values, color="green", linewidth=4)
         if new_left_fit is not None:
             proximity_left_fit_x = new_left_fit[0] * y_values**2 + new_left_fit[1] * y_values + new_left_fit[2]
-            plt.plot(proximity_left_fit_x, y_values, color="red", scalex=4)
+            plot_sliding_windows.plot(proximity_left_fit_x, y_values, color="red", linewidth=4)
+
+            # plot proximity
+            plot_sliding_windows.plot(proximity_left_fit_x - proximity, y_values, color="yellow", linewidth=2)
+            plot_sliding_windows.plot(proximity_left_fit_x + proximity, y_values, color="yellow", linewidth=2)
         if new_right_fit is not None:
             proximity_right_fit_x = new_right_fit[0] * y_values**2 + new_right_fit[1] * y_values + new_right_fit[2]
-            plt.plot(proximity_right_fit_x, y_values, color="red", scalex=4)
+            plot_sliding_windows.plot(proximity_right_fit_x, y_values, color="red", linewidth=4)
+            # plot proximity
+            plot_sliding_windows.plot(proximity_right_fit_x - proximity, y_values, color="yellow", linewidth=2)
+            plot_sliding_windows.plot(proximity_right_fit_x + proximity, y_values, color="yellow", linewidth=2)
 
         plt.show()
     return new_left_fit, new_left_fit_indices, new_right_fit, new_right_fit_indices
@@ -357,7 +371,7 @@ def get_window_fit(
         window_min_y = int(height - (window + 1) * window_height)
         window_max_y = int(height - window * window_height)
 
-        cv2.rectangle(image, (window_min_x, window_min_y), (window_max_x, window_max_y), (255, 255, 255), 2)
+        cv2.rectangle(image, (window_min_x, window_min_y), (window_max_x, window_max_y), (150, 150, 150), 2)
 
         # get white pixel within window
         white_x_ind_in_window = (
