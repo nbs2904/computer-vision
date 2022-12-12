@@ -1,7 +1,7 @@
 # Metadata
 site_name: Digitale Bildverarbeitung - Spurerkennung
 repo_url: https://github.com/nbs2904/computer-vision
-repo_name: computer-vision
+repo_name: nbs2904/computer-vision
 site_description: Spurerkennung Digitale Bildverarbeitung DHBW Stuttgart Informatik
 site_author: Nick Schroeder, Stephan auf der Landwehr, and Fabian Thome
 watch: ["src", "docs", "mkdocs.yml", "pyproject.toml", "README.md"]
