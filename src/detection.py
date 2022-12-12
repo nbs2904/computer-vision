@@ -286,25 +286,31 @@ def get_fit(
         height = image.shape[0]
         y_values = np.linspace(0, height - 1, height)
 
+        plt.savefig("./data/hist_without_fits.jpg")
+
         if last_left_fit is not None:
             window_left_fit_x = last_left_fit[0] * y_values**2 + last_left_fit[1] * y_values + last_left_fit[2]
             plot_sliding_windows.plot(window_left_fit_x, y_values, color="green", linewidth=4)
+
+            # plot proximity
+            plot_sliding_windows.plot(window_left_fit_x - proximity, y_values, color="yellow", linewidth=2)
+            plot_sliding_windows.plot(window_left_fit_x + proximity, y_values, color="yellow", linewidth=2)
+
         if last_right_fit is not None:
             window_right_fit_x = last_right_fit[0] * y_values**2 + last_right_fit[1] * y_values + last_right_fit[2]
             plot_sliding_windows.plot(window_right_fit_x, y_values, color="green", linewidth=4)
+
+            # plot proximity
+            plot_sliding_windows.plot(window_right_fit_x - proximity, y_values, color="yellow", linewidth=2)
+            plot_sliding_windows.plot(window_right_fit_x + proximity, y_values, color="yellow", linewidth=2)
+
         if new_left_fit is not None:
             proximity_left_fit_x = new_left_fit[0] * y_values**2 + new_left_fit[1] * y_values + new_left_fit[2]
             plot_sliding_windows.plot(proximity_left_fit_x, y_values, color="red", linewidth=4)
 
-            # plot proximity
-            plot_sliding_windows.plot(proximity_left_fit_x - proximity, y_values, color="yellow", linewidth=2)
-            plot_sliding_windows.plot(proximity_left_fit_x + proximity, y_values, color="yellow", linewidth=2)
         if new_right_fit is not None:
             proximity_right_fit_x = new_right_fit[0] * y_values**2 + new_right_fit[1] * y_values + new_right_fit[2]
             plot_sliding_windows.plot(proximity_right_fit_x, y_values, color="red", linewidth=4)
-            # plot proximity
-            plot_sliding_windows.plot(proximity_right_fit_x - proximity, y_values, color="yellow", linewidth=2)
-            plot_sliding_windows.plot(proximity_right_fit_x + proximity, y_values, color="yellow", linewidth=2)
 
         plt.show()
     return new_left_fit, new_left_fit_indices, new_right_fit, new_right_fit_indices

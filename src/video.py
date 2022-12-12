@@ -17,7 +17,7 @@ from src.pre_processing import (
 from src.segmentation import get_roi, overlay_lane_lines
 
 
-def display_video(path: str) -> None:
+def display_video(path: str, output_path: str | None = None) -> None:
     """Displays video stored under given path.
         Function performs pre-processing, segmentation, and lane detection.
 
@@ -25,6 +25,8 @@ def display_video(path: str) -> None:
     ----------
     path : str
         Path video is stored under that should be plotted.
+    output_path : str | None
+        Path the output should be saved to, by default None
     """
 
     left_fit = None
@@ -46,19 +48,10 @@ def display_video(path: str) -> None:
 
     video = cv2.VideoCapture(path)
 
+    video_output = None
+
     elapsed = int()
     cv2.namedWindow("Lane Detection", 0)
-
-    # figure = plt.figure(figsize=(10, 8))
-
-    # plot_transformed_image = figure.add_subplot(2, 2, 1)
-    # plot_transformed_image.set_title("Transformed Image")
-
-    # plot_highlighted_image = figure.add_subplot(2, 2, 2)
-    # plot_highlighted_image.set_title("Highlighted Image")
-
-    # plot_output_image = figure.add_subplot(2, 1, 2)
-    # plot_output_image.set_title("Output Image")
 
     print("Started displaying video")
 
@@ -84,6 +77,11 @@ def display_video(path: str) -> None:
             calibrated_image = calibrated_dst[y : y + h, x : x + w]
 
             height_calibrated, width_calibrated, _ = calibrated_image.shape
+
+            if output_path is not None and video_output is None:
+                video_output = cv2.VideoWriter(
+                    output_path, cv2.VideoWriter_fourcc("m", "p", "4", "v"), 20, (width_calibrated, height_calibrated)
+                )
 
             # set destination format (only in first frame)
             if destination_format is None:
@@ -159,11 +157,17 @@ def display_video(path: str) -> None:
                     highlighted_image_with_polynomials, transformed_image, output_image
                 )
 
+                if video_output is not None:
+                    video_output.write(output_image)
+
                 cv2.imshow("Lane Detection", concatenated_images)
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     break
 
             else:
+                if video_output is not None:
+                    video_output.write(calibrated_image)
+
                 # output original image if lane could not be detected
                 cv2.imshow("ca1", calibrated_image)
                 if cv2.waitKey(1) & 0xFF == ord("q"):
@@ -182,6 +186,8 @@ def display_video(path: str) -> None:
             return
 
     video.release()
+    if video_output is not None:
+        video_output.release()
     cv2.destroyAllWindows()
 
 
@@ -233,19 +239,3 @@ def concatenate_images(
     ] = output_image
 
     return concatenated_images
-
-    # test_concated_images = np.zeros((total_height, total_width, 3), dtype=np.uint8)
-    # test_concated_images[
-    #     : highlighted_image_color.shape[0], : highlighted_image_color.shape[1]
-    # ] = highlighted_image_color
-    # test_concated_images[
-    #     : transformed_image.shape[0],
-    #     highlighted_image_color.shape[1] : highlighted_image_color.shape[1] + transformed_image.shape[1],
-    # ] = transformed_image
-
-    # test_concated_images[
-    #     highlighted_image_color.shape[0] : highlighted_image_color.shape[0] + output_image.shape[0],
-    #     : output_image.shape[1],
-    # ] = output_image
-
-    # highlighted_image_color = cv2.cvtColor(highlighted_image_gray, cv2.COLOR_GRAY2BGR)

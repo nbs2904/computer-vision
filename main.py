@@ -1,12 +1,8 @@
-import cv2
-import numpy as np
-
-# from src.pre_processing import highlight_lines
 from src.image import display_image
 from src.video import display_video
 
 VIDEO_NAME = "./data/img/Udacity/project_video.mp4"
-IMAGE_NAME = "./data/img/KITTI/image013.jpg"
+IMAGE_NAME = "./data/img/KITTI/image010.jpg"
 ALL_KITTI_IMAGES = [
     "./data/img/KITTI/image009.jpg",
     "./data/img/KITTI/image010.jpg",
@@ -30,5 +26,5 @@ ALL_UDACITY_IMAGES = [
 if __name__ == "__main__":
     # display_video(VIDEO_NAME)
     # for image in ALL_KITTI_IMAGES:
-    # display_image(image)
+    #     display_image(image)
     display_image(IMAGE_NAME)

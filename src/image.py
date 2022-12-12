@@ -13,7 +13,7 @@ from src.pre_processing import (
 from src.segmentation import draw_roi, get_roi, overlay_lane_lines
 
 
-def display_image(path: str) -> None:
+def display_image(path: str, output_path: str | None = None) -> None:
     """Displays image stored under given path.
         Function performs pre-processing, segmentation, and lane detection.
 
@@ -21,6 +21,8 @@ def display_image(path: str) -> None:
     ----------
     path : str
         Path image is stored under that should be plotted.
+    output_path : str | None
+        Path output image should be stored at, dy default None
     """
 
     is_udacity: bool = "Udacity" in path
@@ -59,7 +61,7 @@ def display_image(path: str) -> None:
     image_roi = draw_roi(calibrated_image, roi.astype(np.int32), plot=False)
 
     # apply thresholding in different color spaces
-    highlighted_image = highlight_lines(calibrated_image, apply_edge_detection=True, plot=False)
+    highlighted_image = highlight_lines(calibrated_image, apply_edge_detection=(not is_udacity), plot=False)
 
     # transform image
     transformation_matrix, inverse_matrix = get_transformation_matrices(roi, destination_format.astype(np.float32))
@@ -74,6 +76,9 @@ def display_image(path: str) -> None:
         output_image = overlay_lane_lines(
             calibrated_image, transformed_image, left_fit_indices, right_fit_indices, inverse_matrix
         )
+
+        if output_path is not None:
+            cv2.imwrite(output_path, output_image)
 
         figure = plt.figure(figsize=(10, 8))
 
